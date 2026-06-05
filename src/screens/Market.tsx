@@ -369,7 +369,7 @@ export function Market() {
           <h1 className="text-2xl font-bold">Market & Sales</h1>
           <p className="text-muted">Track sales, trends, and competitors</p>
         </div>
-        <Button variant="glow" onClick={() => setScreen('designer')}>
+        <Button variant="glow" onClick={() => setScreen('blueprints')}>
           + New Device
         </Button>
       </div>
@@ -401,7 +401,7 @@ export function Market() {
                 <p className="mt-2 max-w-md text-sm text-muted">
                   Design a device in the Designer, then click "Release Device" to bring it to market.
                 </p>
-                <Button className="mt-6" variant="glow" onClick={() => setScreen('designer')}>
+                <Button className="mt-6" variant="glow" onClick={() => setScreen('blueprints')}>
                   Start Designing
                 </Button>
               </div>

@@ -195,7 +195,7 @@ export function Lab() {
         </p>
         <Button 
           variant="ghost" 
-          onClick={() => useGameStore.getState().setScreen('research')}
+          onClick={() => useGameStore.getState().setScreen('blueprints')}
           className="mt-6"
         >
           Go to Research

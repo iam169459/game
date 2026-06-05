@@ -31,7 +31,6 @@ export function Settings() {
     a.download = `devices-tycoon-save-${Date.now()}.json`;
     a.click();
     URL.revokeObjectURL(url);
-    setShowExportConfirm(false);
   };
 
   const handleImport = () => {

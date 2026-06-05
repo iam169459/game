@@ -98,7 +98,7 @@ export function AccessLogin({ onAccess }: { onAccess: (name: string) => void }) 
             <div className="flex gap-1.5">
               <div className="h-2.5 w-2.5 rounded-full bg-red-500/60" />
               <div className="h-2.5 w-2.5 rounded-full bg-yellow-500/60" />
-              <div className="h-25 h-2.5 w-2.5 rounded-full bg-green-500/60" />
+              <div className="h-2.5 w-2.5 rounded-full bg-green-500/60" />
             </div>
             <span className="ml-2 font-mono text-[10px] tracking-widest text-cyan-600/50">
               SYS://AUTHENTICATION_TERMINAL

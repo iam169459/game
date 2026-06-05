@@ -1,6 +1,6 @@
 import type { GameSave, ScreenId } from '../types';
 
-const GAME_SCREENS: ScreenId[] = ['menu', 'dashboard', 'designer', 'market', 'research', 'factory'];
+const GAME_SCREENS: ScreenId[] = ['menu', 'devices', 'blueprints', 'employees', 'social', 'settings'];
 
 const STARTING_CASH = 50_000;
 

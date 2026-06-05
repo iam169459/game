@@ -1,4 +1,5 @@
-export type ScreenId = 'menu' | 'dashboard' | 'designer' | 'market' | 'research' | 'factory' | 'lab' | 'employees' | 'settings';
+export type ScreenId = 'menu' | 'devices' | 'blueprints' | 'employees' | 'social' | 'settings';
+export type TabId = 'devices' | 'blueprints' | 'employees' | 'social';
 
 export type BotStrategy = 'budget' | 'midrange' | 'flagship' | 'innovator' | 'underdog';
 
@@ -234,6 +235,15 @@ export interface CraftedPart {
   craftedMonth: number;
 }
 
+export interface Friend {
+  id: string;
+  username: string;
+  rank: number;
+  cash: number;
+  devicesReleased: number;
+  addedMonth: number;
+}
+
 export interface GameSave {
   version: number;
   companyName: string;
@@ -270,4 +280,5 @@ export interface GameSave {
   devicePricing?: Record<string, MarketPricing>;
   totalRepairCosts?: number;
   totalMaintenanceSpent?: number;
+  friends?: Friend[];
 }

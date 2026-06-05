@@ -1,31 +1,23 @@
 import { useEffect, useState, useCallback } from 'react';
-import type { ComponentType } from 'react';
 import { SciFiLoading } from './components/SciFiLoading';
-import { Sidebar } from './components/layout/Sidebar';
 import { TopBar } from './components/layout/TopBar';
+import { BottomNav } from './components/layout/BottomNav';
 import { useStoreHydration } from './hooks/useStoreHydration';
 import { AccessLogin } from './screens/AccessLogin';
-import { Dashboard } from './screens/Dashboard';
-import { Designer } from './screens/Designer';
-import { Employees } from './screens/Employees';
-import { Factory } from './screens/Factory';
-import { Lab } from './screens/Lab';
-import { MainMenu } from './screens/MainMenu';
-import { Market } from './screens/Market';
-import { Research } from './screens/Research';
+import { DevicesTab } from './screens/DevicesTab';
+import { BlueprintsTab } from './screens/BlueprintsTab';
+import { EmployeesTab } from './screens/EmployeesTab';
+import { SocialTab } from './screens/SocialTab';
 import { Settings } from './screens/Settings';
+import { MainMenu } from './screens/MainMenu';
 import { useGameStore } from './store/useGameStore';
-import type { ScreenId } from './types';
+import type { TabId, ScreenId } from './types';
 
-const SCREENS: Record<Exclude<ScreenId, 'menu'>, ComponentType> = {
-  dashboard: Dashboard,
-  designer: Designer,
-  lab: Lab,
-  market: Market,
-  research: Research,
-  factory: Factory,
-  employees: Employees,
-  settings: Settings,
+const TABS: Record<TabId, React.ComponentType> = {
+  devices: DevicesTab,
+  blueprints: BlueprintsTab,
+  employees: EmployeesTab,
+  social: SocialTab,
 };
 
 function Notification() {
@@ -52,10 +44,6 @@ function Notification() {
   );
 }
 
-function isGameScreen(screen: ScreenId): screen is Exclude<ScreenId, 'menu'> {
-  return screen !== 'menu' && screen in SCREENS;
-}
-
 type AppPhase = 'loading' | 'login' | 'menu' | 'game';
 
 export default function App() {
@@ -67,32 +55,27 @@ export default function App() {
 
   const [phase, setPhase] = useState<AppPhase>(!hydrated ? 'loading' : 'login');
 
-  // Loading → Login
   const handleLoadingComplete = useCallback(() => {
     setPhase('login');
   }, []);
 
-  // Login → Menu/Game
   const handleAccess = useCallback(
     (name: string) => {
-      const state = useGameStore.getState();
-      if (state.gameStarted) {
+      if (gameStarted) {
         continueGame();
       } else {
         startGame(name);
       }
     },
-    [startGame, continueGame]
+    [gameStarted, startGame, continueGame]
   );
 
-  // Once hydrated and game started, move to game
   useEffect(() => {
     if (hydrated && phase === 'login' && gameStarted) {
       setPhase('game');
     }
   }, [hydrated, phase, gameStarted]);
 
-  // Phase transitions based on store state
   useEffect(() => {
     if (phase !== 'login' && phase !== 'game') return;
     if (screen === 'menu') {
@@ -102,17 +85,28 @@ export default function App() {
     }
   }, [screen, gameStarted, phase]);
 
-  // Loading screen
+  // Auto-advance timeline
+  const autoAdvance = useGameStore((s) => s.autoAdvance);
+  const autoAdvanceSpeed = useGameStore((s) => s.autoAdvanceSpeed);
+  const advanceDay = useGameStore((s) => s.advanceDay);
+
+  useEffect(() => {
+    if (!autoAdvance || phase !== 'game') return;
+    const intervalMs = Math.round(1000 / autoAdvanceSpeed);
+    const timer = setInterval(() => {
+      advanceDay();
+    }, intervalMs);
+    return () => clearInterval(timer);
+  }, [autoAdvance, autoAdvanceSpeed, advanceDay, phase]);
+
   if (phase === 'loading' || !hydrated) {
     return <SciFiLoading onComplete={handleLoadingComplete} />;
   }
 
-  // Login screen
   if (phase === 'login') {
     return <AccessLogin onAccess={handleAccess} />;
   }
 
-  // Menu (after login or explicit menu navigation)
   const showMenu = !gameStarted || screen === 'menu';
   if (showMenu && phase === 'menu') {
     return (
@@ -123,21 +117,18 @@ export default function App() {
     );
   }
 
-  // Game screens
-  const activeScreen = isGameScreen(screen) ? screen : 'dashboard';
-  const Screen = SCREENS[activeScreen];
+  const isTab = (s: ScreenId): s is TabId => s !== 'menu' && s !== 'settings' && s in TABS;
+  const activeTab: TabId = isTab(screen) ? screen : 'devices';
+
+  const Tab = TABS[activeTab];
 
   return (
-    <div className="bg-game min-h-screen p-3 sm:p-4">
-      <div className="mx-auto flex min-h-[calc(100vh-2rem)] max-w-[1600px] flex-col lg:flex-row lg:gap-5">
-        <Sidebar />
-        <div className="flex min-w-0 flex-1 flex-col">
-          <TopBar />
-          <main className="flex-1 pb-8">
-            <Screen />
-          </main>
-        </div>
-      </div>
+    <div className="flex h-[100dvh] flex-col overflow-hidden bg-game">
+      <TopBar />
+      <main className="flex-1 overflow-y-auto px-4 pt-3 pb-24">
+        {screen === 'settings' ? <Settings /> : <Tab />}
+      </main>
+      <BottomNav />
       <Notification />
     </div>
   );

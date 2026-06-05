@@ -1,21 +1,17 @@
 import { useGameStore } from '../../store/useGameStore';
-import type { ScreenId } from '../../types';
-
-const NAV: { id: ScreenId; label: string; icon: string }[] = [
-  { id: 'dashboard', label: 'Dashboard', icon: '🏢' },
-  { id: 'designer', label: 'Designer', icon: '🎨' },
-  { id: 'lab', label: 'Lab', icon: '⚗️' },
-  { id: 'market', label: 'Market', icon: '📣' },
-  { id: 'research', label: 'R&D', icon: '🔬' },
-  { id: 'factory', label: 'Factory', icon: '🏭' },
-  { id: 'employees', label: 'Team', icon: '👥' },
-];
 
 export function Sidebar() {
   const screen = useGameStore((s) => s.screen);
   const setScreen = useGameStore((s) => s.setScreen);
   const companyName = useGameStore((s) => s.companyName);
   const cash = useGameStore((s) => s.cash);
+
+  const NAV: { id: 'devices' | 'blueprints' | 'employees' | 'social'; label: string; icon: string }[] = [
+    { id: 'devices', label: 'Devices', icon: '📱' },
+    { id: 'blueprints', label: 'Blueprints', icon: '🔧' },
+    { id: 'employees', label: 'Team', icon: '👥' },
+    { id: 'social', label: 'Social', icon: '🌐' },
+  ];
 
   return (
     <aside className="glass-strong hidden w-60 shrink-0 flex-col rounded-2xl p-4 lg:flex">

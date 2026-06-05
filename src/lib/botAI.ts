@@ -291,6 +291,7 @@ export function calcMarketShares(
   bots: BotCompany[],
   playerMonthlyRevenue: number,
   playerReputation: number,
+  playerFans = 0,
 ): { id: string; name: string; share: number; color: string; logo: string }[] {
   const entries = [
     ...bots.map((b) => ({
@@ -303,7 +304,7 @@ export function calcMarketShares(
     {
       id: 'player',
       name: 'You',
-      score: playerMonthlyRevenue * 0.6 + playerReputation * 0.3,
+      score: playerMonthlyRevenue * 0.6 + playerReputation * 0.3 + playerFans * 0.1,
       color: '#00d4ff',
       logo: '📱',
     },

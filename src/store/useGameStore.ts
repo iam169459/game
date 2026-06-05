@@ -30,6 +30,7 @@ import type {
   DeviceStats,
   DraftDesign,
   Employee,
+  Friend,
   MarketEvent,
   MarketTrend,
   MonthlySales,
@@ -97,6 +98,13 @@ interface GameStore {
   totalRepairCosts: number;
   totalMaintenanceSpent: number;
 
+  // Social
+  friends: Friend[];
+
+  // Auto-advance timeline
+  autoAdvance: boolean;
+  autoAdvanceSpeed: number;
+
   setScreen: (s: ScreenId) => void;
   clearNotification: () => void;
   startGame: (name: string) => void;
@@ -133,6 +141,10 @@ interface GameStore {
   // New: Device maintenance actions
   repairDevice: (deviceId: string) => boolean;
   getDeviceDurability: (deviceId: string) => number;
+
+  // Auto-advance timeline
+  toggleAutoAdvance: () => void;
+  setAutoAdvanceSpeed: (speed: number) => void;
 }
 
 function initialFactories(): ProductionLine[] {
@@ -232,6 +244,9 @@ export const useGameStore = create<GameStore>()(
       devicePricing: {},
       totalRepairCosts: 0,
       totalMaintenanceSpent: 0,
+      friends: [],
+      autoAdvance: false,
+      autoAdvanceSpeed: 1,
 
       setScreen: (screen) => set({ screen }),
       clearNotification: () => set({ notification: null }),
@@ -239,7 +254,7 @@ export const useGameStore = create<GameStore>()(
       continueGame: () =>
         set({
           gameStarted: true,
-          screen: 'dashboard',
+          screen: 'devices',
         }),
 
       resetGame: () => {
@@ -275,6 +290,12 @@ export const useGameStore = create<GameStore>()(
           companyValuation: STARTING_CASH,
           quarterlyReports: [],
           marketShare: 0,
+          devicePricing: {},
+          totalRepairCosts: 0,
+          totalMaintenanceSpent: 0,
+          friends: [],
+          autoAdvance: false,
+          autoAdvanceSpeed: 1,
           notification: null,
         });
       },
@@ -284,7 +305,7 @@ export const useGameStore = create<GameStore>()(
         set({
           gameStarted: true,
           companyName,
-          screen: 'dashboard',
+          screen: 'devices',
           cash: STARTING_CASH,
           fans: 12,
           reputation: 10,
@@ -474,8 +495,9 @@ export const useGameStore = create<GameStore>()(
         });
 
         const monthProfit = totalRevenue - updatedDevices.reduce((sum, d) => {
+          const monthlySalesCount = d.monthlySales[d.monthlySales.length - 1] ?? 0;
           const design = s.designs.find((dsg) => dsg.id === d.id);
-          return sum + (d.totalSold - (d.totalSold - (d.monthlySales[d.monthlySales.length - 1] ?? 0))) * (design?.unitCost ?? 0);
+          return sum + monthlySalesCount * (design?.unitCost ?? 0);
         }, 0);
 
         // Employee salaries
@@ -487,7 +509,7 @@ export const useGameStore = create<GameStore>()(
 
         // Calculate market share
         const lastMonthRevenue = s.salesHistory.length > 0 ? s.salesHistory[s.salesHistory.length - 1].revenue : 0;
-        const shares = calcMarketShares(updatedBots, lastMonthRevenue, s.reputation);
+        const shares = calcMarketShares(updatedBots, lastMonthRevenue, s.reputation, s.fans);
         const playerShare = shares.find((sh) => sh.id === 'player')?.share ?? 0;
 
         // Generate quarterly report
@@ -897,6 +919,14 @@ export const useGameStore = create<GameStore>()(
         return device?.durability ?? 0;
       },
 
+      toggleAutoAdvance: () => {
+        set((s) => ({ autoAdvance: !s.autoAdvance }));
+      },
+
+      setAutoAdvanceSpeed: (speed) => {
+        set({ autoAdvanceSpeed: Math.max(1, Math.min(5, speed)) });
+      },
+
       advanceDay: () => {
         const s = get();
         const finance = emptyFinance();
@@ -963,12 +993,13 @@ export const useGameStore = create<GameStore>()(
         }
 
         const day = s.day + 1;
-        const month = day > 30 ? s.month + 1 : s.month;
-        const newDay = day > 30 ? 1 : day;
+        const isNewMonth = day > 30;
+        const newDay = isNewMonth ? 1 : day;
+        const newMonth = isNewMonth ? (s.month >= 12 ? 1 : s.month + 1) : s.month;
 
         set({
           day: newDay,
-          month: month > 12 ? 1 : month,
+          month: newMonth,
           cash,
           fans,
           reputation,
@@ -981,6 +1012,7 @@ export const useGameStore = create<GameStore>()(
           profitHistory: [...s.profitHistory.slice(-29), finance.profit],
           totalUnitsSold: s.totalUnitsSold + units,
         });
+        if (isNewMonth) get().advanceMonth();
       },
     }),
     {
@@ -996,7 +1028,7 @@ export const useGameStore = create<GameStore>()(
         const screen: ScreenId = clean.gameStarted
           ? clean.screen && clean.screen !== 'menu'
             ? clean.screen
-            : 'dashboard'
+            : 'devices'
           : 'menu';
         return {
           ...current,
@@ -1055,6 +1087,7 @@ export const useGameStore = create<GameStore>()(
         devicePricing: s.devicePricing,
         totalRepairCosts: s.totalRepairCosts,
         totalMaintenanceSpent: s.totalMaintenanceSpent,
+        friends: s.friends,
       }),
     },
   ),

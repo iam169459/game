@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
@@ -8,10 +9,10 @@ import { useGameStore } from '../store/useGameStore';
 import { calcMarketShares } from '../lib/botAI';
 
 const QUICK = [
-  { screen: 'designer' as const, label: 'Design Device', desc: 'Build your next hit', icon: '🎨', gradient: 'from-blue-600/30 to-violet-600/20' },
-  { screen: 'factory' as const, label: 'Production', desc: 'Manufacture stock', icon: '🏭', gradient: 'from-amber-600/30 to-orange-600/20' },
-  { screen: 'market' as const, label: 'Marketing', desc: 'Boost sales', icon: '📣', gradient: 'from-pink-600/30 to-rose-600/20' },
-  { screen: 'research' as const, label: 'R&D Lab', desc: 'Unlock tech', icon: '🔬', gradient: 'from-emerald-600/30 to-teal-600/20' },
+  { screen: 'blueprints' as const, label: 'Design Device', desc: 'Build your next hit', icon: '🎨', gradient: 'from-blue-600/30 to-violet-600/20' },
+  { screen: 'devices' as const, label: 'Production', desc: 'Manufacture stock', icon: '🏭', gradient: 'from-amber-600/30 to-orange-600/20' },
+  { screen: 'devices' as const, label: 'Marketing', desc: 'Boost sales', icon: '📣', gradient: 'from-pink-600/30 to-rose-600/20' },
+  { screen: 'blueprints' as const, label: 'R&D Lab', desc: 'Unlock tech', icon: '🔬', gradient: 'from-emerald-600/30 to-teal-600/20' },
 ];
 
 export function Dashboard() {
@@ -31,6 +32,7 @@ export function Dashboard() {
   const marketShare = useGameStore((s) => s.marketShare);
   const companyValuation = useGameStore((s) => s.companyValuation);
   const employees = useGameStore((s) => s.employees);
+  const totalUnitsSold = useGameStore((s) => s.totalUnitsSold);
   const setScreen = useGameStore((s) => s.setScreen);
   const advanceMonth = useGameStore((s) => s.advanceMonth);
 
@@ -38,8 +40,11 @@ export function Dashboard() {
   const lastMonthRevenue = salesHistory[salesHistory.length - 1]?.revenue ?? 0;
   const totalSalary = employees.reduce((sum, e) => sum + e.salary, 0);
 
-  // Calculate live market shares
-  const shares = calcMarketShares(botCompanies, lastMonthRevenue, reputation);
+  // Calculate live market shares (memoized)
+  const shares = useMemo(
+    () => calcMarketShares(botCompanies, lastMonthRevenue, reputation, fans),
+    [botCompanies, lastMonthRevenue, reputation, fans],
+  );
 
   return (
     <div className="space-y-6">
@@ -67,10 +72,13 @@ export function Dashboard() {
           </div>
 
           <div className="flex flex-wrap gap-3">
-            <Button variant="glow" onClick={() => setScreen('designer')}>
-              ✦ New Device
+            <Button variant="glow" onClick={() => setScreen('blueprints')}>
+              Open Designer
             </Button>
-            <Button variant="secondary" onClick={() => setScreen('market')}>
+            <Button variant="secondary" onClick={() => setScreen('devices')}>
+              Marketing
+            </Button>
+            <Button variant="secondary" onClick={() => setScreen('devices')}>
               📈 Market ({releasedDevices.length})
             </Button>
             <Button variant="secondary" onClick={advanceMonth}>
@@ -175,7 +183,7 @@ export function Dashboard() {
             </div>
             <div className="flex justify-between rounded-xl bg-surface-raised/80 px-3 py-2">
               <span className="text-xs text-muted">Total Units Sold</span>
-              <span className="font-mono text-sm font-bold">{useGameStore.getState().totalUnitsSold.toLocaleString()}</span>
+              <span className="font-mono text-sm font-bold">{totalUnitsSold.toLocaleString()}</span>
             </div>
           </div>
         </Card>
@@ -188,7 +196,7 @@ export function Dashboard() {
             <h3 className="font-semibold">Competitor Activity</h3>
             <p className="text-xs text-muted">Recent device launches from rivals</p>
           </div>
-          <Button variant="secondary" onClick={() => setScreen('market')}>
+          <Button variant="secondary" onClick={() => setScreen('devices')}>
             View Full Market
           </Button>
         </div>
@@ -317,7 +325,7 @@ export function Dashboard() {
             <h3 className="text-lg font-semibold">Product Lineup</h3>
             <p className="text-sm text-muted">{releasedDevices.length} devices on market</p>
           </div>
-          <Button variant="secondary" onClick={() => setScreen('designer')}>
+          <Button variant="secondary" onClick={() => setScreen('blueprints')}>
             + New Design
           </Button>
         </div>
@@ -329,7 +337,7 @@ export function Dashboard() {
             <p className="mt-1 max-w-sm text-sm text-muted">
               Design a device and click "Release Device" to bring it to market.
             </p>
-            <Button className="mt-5" variant="glow" onClick={() => setScreen('designer')}>
+            <Button className="mt-5" variant="glow" onClick={() => setScreen('blueprints')}>
               Start Designing
             </Button>
           </div>
