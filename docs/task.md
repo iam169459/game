@@ -1,0 +1,11 @@
+- [x] Extend design types in `src/types/index.ts` with custom colors, logos, camera layouts, and packaging styles
+- [x] Implement backend Google Cloud Firestore database store in `server/src/store/playerStore.ts`
+- [x] Migrate Express server routes in `server/src/server.ts` to be async and support save/load endpoints
+- [x] Update backend modules in `server/src/modules/` to await playerStore async operations
+- [x] Create client API helper `src/lib/api.ts` to fetch and sync data with the backend Express server
+- [x] Integrate API registry and auto-save cloud sync in client Zustand store `src/store/useGameStore.ts`
+- [x] Implement visual customization and front/back toggles in `src/screens/Designer.tsx` and mockup components
+- [x] Update `render.yaml` with Firestore credential placeholders
+- [x] Add advanced hardware spec options (Smartwatch Shape, Camera Shape, Logo Glow, Button Placement, Extended Material Finishes)
+- [x] Verify frontend and backend compilations and run tests
+- [x] Stage, commit and push changes to git repository
