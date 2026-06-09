@@ -269,7 +269,7 @@ export async function purchaseBlueprint(
   playerUuid: string,
   blueprintId: string
 ): Promise<TransactionResult> {
-  const player = playerStore.getByUuid(playerUuid);
+  const player = await playerStore.getByUuid(playerUuid);
   if (!player) {
     return { success: false, message: 'Player not found.' };
   }
@@ -324,7 +324,7 @@ export async function craftDevice(
   playerUuid: string,
   deviceId: string
 ): Promise<TransactionResult> {
-  const player = playerStore.getByUuid(playerUuid);
+  const player = await playerStore.getByUuid(playerUuid);
   if (!player) {
     return { success: false, message: 'Player not found.' };
   }

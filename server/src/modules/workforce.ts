@@ -33,7 +33,7 @@ export async function hireEmployee(
   playerUuid: string,
   employeeType: EmployeeType
 ): Promise<TransactionResult> {
-  const player = playerStore.getByUuid(playerUuid);
+  const player = await playerStore.getByUuid(playerUuid);
   if (!player) {
     return { success: false, message: 'Player not found.' };
   }
@@ -93,7 +93,7 @@ export async function assignEmployee(
   workerId: string,
   deviceId: string
 ): Promise<TransactionResult> {
-  const player = playerStore.getByUuid(playerUuid);
+  const player = await playerStore.getByUuid(playerUuid);
   if (!player) {
     return { success: false, message: 'Player not found.' };
   }
@@ -161,7 +161,7 @@ export async function unassignEmployee(
   playerUuid: string,
   workerId: string
 ): Promise<TransactionResult> {
-  const player = playerStore.getByUuid(playerUuid);
+  const player = await playerStore.getByUuid(playerUuid);
   if (!player) {
     return { success: false, message: 'Player not found.' };
   }
@@ -229,7 +229,7 @@ async function processTick(): Promise<TickReport> {
 
   tickRunning = true;
   const startTime = Date.now();
-  const allPlayers = playerStore.getAllPlayers();
+  const allPlayers = await playerStore.getAllPlayers();
 
   let totalIncome = 0;
   let totalSalaries = 0;
@@ -239,7 +239,7 @@ async function processTick(): Promise<TickReport> {
     try {
       await processPlayerTick(player.uuid);
       // Re-read to get updated values for reporting
-      const updated = playerStore.getByUuid(player.uuid);
+      const updated = await playerStore.getByUuid(player.uuid);
       if (updated) {
         // Calculate what happened (approximate for reporting)
         const salaryCost = player.hiredEmployees.reduce((sum, e) => sum + e.baseSalaryRate, 0);
@@ -251,7 +251,7 @@ async function processTick(): Promise<TickReport> {
   }
 
   // Re-read all for accurate income reporting
-  const afterPlayers = playerStore.getAllPlayers();
+  const afterPlayers = await playerStore.getAllPlayers();
   for (const p of afterPlayers) {
     const before = allPlayers.find((ap) => ap.uuid === p.uuid);
     if (before) {

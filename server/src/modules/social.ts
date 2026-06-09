@@ -20,15 +20,15 @@ export async function addFriend(
   targetIdentifier: string // username or UUID
 ): Promise<TransactionResult> {
   // 1. Validate sender exists
-  const sender = playerStore.getByUuid(playerUuid);
+  const sender = await playerStore.getByUuid(playerUuid);
   if (!sender) {
     return { success: false, message: 'Player not found.' };
   }
 
   // 2. Resolve target by username or UUID
-  let target = playerStore.getByUsername(targetIdentifier);
+  let target = await playerStore.getByUsername(targetIdentifier);
   if (!target) {
-    target = playerStore.getByUuid(targetIdentifier);
+    target = await playerStore.getByUuid(targetIdentifier);
   }
   if (!target) {
     return { success: false, message: `Target player "${targetIdentifier}" not found.` };
@@ -77,12 +77,12 @@ export async function removeFriend(
   playerUuid: string,
   targetUuid: string
 ): Promise<TransactionResult> {
-  const sender = playerStore.getByUuid(playerUuid);
+  const sender = await playerStore.getByUuid(playerUuid);
   if (!sender) {
     return { success: false, message: 'Player not found.' };
   }
 
-  const target = playerStore.getByUuid(targetUuid);
+  const target = await playerStore.getByUuid(targetUuid);
   if (!target) {
     return { success: false, message: 'Target player not found.' };
   }
@@ -145,12 +145,12 @@ export async function donateMoney(
     return { success: false, message: 'Minimum donation is $0.01.' };
   }
 
-  const sender = playerStore.getByUuid(senderUuid);
+  const sender = await playerStore.getByUuid(senderUuid);
   if (!sender) {
     return { success: false, message: 'Sender player not found.' };
   }
 
-  const recipient = playerStore.getByUuid(recipientUuid);
+  const recipient = await playerStore.getByUuid(recipientUuid);
   if (!recipient) {
     return { success: false, message: 'Recipient player not found.' };
   }
@@ -215,14 +215,14 @@ export async function donateMoney(
 
 // ─── Get Friend List (with profiles) ─────────────────────────────
 
-export function getFriendList(playerUuid: string): TransactionResult {
-  const player = playerStore.getByUuid(playerUuid);
+export async function getFriendList(playerUuid: string): Promise<TransactionResult> {
+  const player = await playerStore.getByUuid(playerUuid);
   if (!player) {
     return { success: false, message: 'Player not found.' };
   }
 
-  const friends = player.friendsList
-    .map((uuid) => playerStore.getByUuid(uuid))
+  const friendProfiles = await Promise.all(player.friendsList.map((uuid) => playerStore.getByUuid(uuid)));
+  const friends = friendProfiles
     .filter(Boolean)
     .map((p) => ({
       uuid: p!.uuid,

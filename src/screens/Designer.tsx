@@ -10,7 +10,7 @@ import {
   getComponent,
 } from '../lib/gameLogic';
 import { useGameStore } from '../store/useGameStore';
-import type { ComponentDef, ComponentSlot, DeviceCategory, DeviceStats } from '../types';
+import type { ComponentDef, ComponentSlot, DeviceCategory, DeviceStats, DraftDesign } from '../types';
 
 const SLOT_META: Record<ComponentSlot, { label: string; icon: string; color: string; gradient: string }> = {
   screen:       { label: 'Screen',       icon: '🖥️', color: 'text-blue-400',   gradient: 'from-blue-500 to-cyan-500' },
@@ -86,6 +86,191 @@ function ComponentTierCard({
   );
 }
 
+const COLOR_PRESETS = [
+  { name: 'Titanium Gray', hex: '#475569' },
+  { name: 'Alpine Green', hex: '#2d4b3f' },
+  { name: 'Deep Purple', hex: '#3b2f4c' },
+  { name: 'Gold', hex: '#d4af37' },
+  { name: 'Matte Black', hex: '#1c1c1e' },
+  { name: 'Silver', hex: '#c0c0c0' },
+  { name: 'Neo Mint', hex: '#2ecc71' },
+  { name: 'Cyberpunk Yellow', hex: '#f1c40f' },
+  { name: 'Crimson Red', hex: '#c0392b' },
+  { name: 'Electric Blue', hex: '#2980b9' },
+];
+
+const BOX_COLOR_PRESETS = [
+  { name: 'Sleek Black', hex: '#0f172a' },
+  { name: 'Pure White', hex: '#ffffff' },
+  { name: 'Royal Gold', hex: '#d4af37' },
+  { name: 'Craft Brown', hex: '#8b5a2b' },
+  { name: 'Titanium Dark', hex: '#1e293b' },
+];
+
+const BOX_TEXT_PRESETS = [
+  { name: 'Gold Foil', hex: '#d4af37' },
+  { name: 'Silver Foil', hex: '#e2e8f0' },
+  { name: 'Pitch Black', hex: '#0f172a' },
+  { name: 'Soft White', hex: '#f8fafc' },
+  { name: 'Electric Cyan', hex: '#06b6d4' },
+];
+
+const CAMERA_LAYOUTS = ['Single Lens', 'Vertical Dual', 'Square Triple', 'Ring Array', 'Circular'];
+const FINISH_OPTIONS = ['Matte Glass', 'Brushed Titanium', 'Glossy Ceramic'];
+const LOGO_OPTIONS = ['Circle', 'Apple', 'Star', 'Leaf', 'Delta', 'Orb', 'Helix', 'Apex', 'Square'];
+const BOX_STYLES = ['Minimalist', 'Premium', 'Bold'];
+
+const LOGO_MAP: Record<string, string> = {
+  Circle: '🟢',
+  Apple: '🍎',
+  Star: '⭐',
+  Leaf: '🍃',
+  Delta: '🔺',
+  Orb: '🪐',
+  Helix: '🌀',
+  Apex: '⚡',
+  Square: '⏹️',
+};
+
+const getFinishStyles = (color: string, finish: string): React.CSSProperties => {
+  switch (finish) {
+    case 'Brushed Titanium':
+      return {
+        backgroundColor: color,
+        backgroundImage: 'repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 2px, transparent 2px, transparent 4px), linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0.3) 100%)',
+        boxShadow: 'inset 0 0 15px rgba(0,0,0,0.4), inset 0 2px 4px rgba(255,255,255,0.2)',
+      };
+    case 'Glossy Ceramic':
+      return {
+        backgroundColor: color,
+        backgroundImage: 'linear-gradient(135deg, transparent 30%, rgba(255,255,255,0.25) 45%, rgba(255,255,255,0.25) 50%, transparent 55%), linear-gradient(to bottom, rgba(255,255,255,0.05), rgba(0,0,0,0.3))',
+        boxShadow: 'inset 0 0 20px rgba(255,255,255,0.2), 0 4px 20px rgba(0,0,0,0.5)',
+      };
+    case 'Matte Glass':
+    default:
+      return {
+        backgroundColor: color,
+        backgroundImage: 'radial-gradient(circle at 50% 20%, rgba(255,255,255,0.12), transparent 60%), linear-gradient(to bottom, rgba(255,255,255,0.05), rgba(0,0,0,0.2))',
+        boxShadow: 'inset 0 0 12px rgba(255,255,255,0.08), inset 0 -2px 6px rgba(0,0,0,0.3)',
+      };
+  }
+};
+
+const renderCameraModule = (layout: string, _color: string, _finish: string) => {
+  const lensStyle = "w-6 h-6 rounded-full bg-black flex items-center justify-center relative overflow-hidden border border-zinc-700/50 shadow-inner";
+  const lensGlassStyle = "absolute inset-0.5 rounded-full bg-gradient-to-tr from-cyan-600/30 to-zinc-900 shadow-[inset_0_2px_4px_rgba(255,255,255,0.2)] after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:w-1.5 after:h-1.5 after:rounded-full after:bg-white/60";
+  const flashStyle = "w-2.5 h-2.5 rounded-full bg-amber-200/90 border border-amber-300 shadow-[0_0_8px_rgba(251,191,36,0.8)]";
+
+  switch (layout) {
+    case 'Single Lens':
+      return (
+        <div className="absolute top-4 left-4 bg-black/20 backdrop-blur-sm border border-white/10 rounded-2xl p-2 flex items-center gap-2 shadow-lg">
+          <div className={lensStyle}>
+            <div className={lensGlassStyle} />
+          </div>
+          <div className={flashStyle} />
+        </div>
+      );
+    case 'Vertical Dual':
+      return (
+        <div className="absolute top-4 left-4 bg-black/25 backdrop-blur-md border border-white/10 rounded-2xl p-2 flex flex-col items-center gap-2 shadow-lg">
+          <div className={lensStyle}>
+            <div className={lensGlassStyle} />
+          </div>
+          <div className={lensStyle}>
+            <div className={lensGlassStyle} />
+          </div>
+          <div className={flashStyle} />
+        </div>
+      );
+    case 'Square Triple':
+      return (
+        <div className="absolute top-4 left-4 bg-black/25 backdrop-blur-md border border-white/10 rounded-3xl p-2.5 grid grid-cols-2 gap-2 shadow-lg w-18 h-18 items-center justify-items-center">
+          <div className={lensStyle}>
+            <div className={lensGlassStyle} />
+          </div>
+          <div className={lensStyle}>
+            <div className={lensGlassStyle} />
+          </div>
+          <div className={lensStyle}>
+            <div className={lensGlassStyle} />
+          </div>
+          <div className={flashStyle} />
+        </div>
+      );
+    case 'Ring Array':
+      return (
+        <div className="absolute top-4 left-4 bg-black/25 backdrop-blur-md border border-white/10 rounded-3xl p-2.5 grid grid-cols-2 gap-2 shadow-lg w-18 h-18 items-center justify-items-center">
+          <div className={lensStyle}>
+            <div className={lensGlassStyle} />
+          </div>
+          <div className={lensStyle}>
+            <div className={lensGlassStyle} />
+          </div>
+          <div className={flashStyle} />
+          <div className={lensStyle}>
+            <div className={lensGlassStyle} />
+          </div>
+        </div>
+      );
+    case 'Circular':
+    default:
+      return (
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-black/35 backdrop-blur-md border border-white/15 rounded-full p-3.5 flex items-center justify-center shadow-2xl w-22 h-22">
+          <div className="w-full h-full rounded-full border border-white/10 relative flex items-center justify-center bg-zinc-900/60">
+            <div className={`${lensStyle} absolute top-1 left-1/2 -translate-x-1/2 w-4 h-4`}>
+              <div className={lensGlassStyle} />
+            </div>
+            <div className={`${lensStyle} absolute bottom-1 left-1/2 -translate-x-1/2 w-4 h-4`}>
+              <div className={lensGlassStyle} />
+            </div>
+            <div className={`${lensStyle} absolute left-1 top-1/2 -translate-y-1/2 w-4 h-4`}>
+              <div className={lensGlassStyle} />
+            </div>
+            <div className={`${flashStyle} absolute right-2 top-1/2 -translate-y-1/2`} />
+          </div>
+        </div>
+      );
+  }
+};
+
+const renderBoxStyle = (style: string, name: string, logo: string, textColor: string) => {
+  const logoSymbol = LOGO_MAP[logo] || '🟢';
+
+  switch (style) {
+    case 'Premium':
+      return (
+        <div className="flex flex-col items-center justify-center h-full p-6 text-center border border-white/5 rounded-3xl" style={{ color: textColor }}>
+          <div className="w-14 h-14 rounded-full border border-dashed flex items-center justify-center mb-6" style={{ borderColor: textColor }}>
+            <span className="text-2xl" style={{ filter: `drop-shadow(0 0 8px ${textColor}aa)` }}>{logoSymbol}</span>
+          </div>
+          <div className="h-px w-16 bg-gradient-to-r from-transparent via-current to-transparent mb-4" />
+          <h4 className="text-xl font-serif tracking-widest font-bold capitalize mb-1">{name}</h4>
+          <p className="text-[9px] tracking-[0.2em] opacity-60 uppercase">Edition Premium</p>
+        </div>
+      );
+    case 'Bold':
+      return (
+        <div className="flex flex-col justify-between h-full p-6 text-left" style={{ color: textColor }}>
+          <div className="text-4xl font-extrabold tracking-tighter opacity-80" style={{ textShadow: `2px 2px 0px ${textColor}30` }}>{logoSymbol}</div>
+          <div className="mt-auto">
+            <h4 className="text-3xl font-black uppercase tracking-tighter leading-none mb-2 break-all" style={{ textShadow: `2px 2px 0px rgba(0,0,0,0.2)` }}>{name}</h4>
+            <div className="inline-block px-1.5 py-0.5 bg-white/15 rounded text-[8px] font-bold tracking-widest uppercase">Next-Gen Spec</div>
+          </div>
+        </div>
+      );
+    case 'Minimalist':
+    default:
+      return (
+        <div className="flex flex-col items-center justify-center h-full p-6 text-center" style={{ color: textColor }}>
+          <span className="text-3xl mb-4 opacity-75">{logoSymbol}</span>
+          <h4 className="text-base font-light tracking-[0.25em] uppercase truncate max-w-full">{name}</h4>
+          <span className="text-[7px] tracking-[0.3em] opacity-40 uppercase mt-1">Packaged Product</span>
+        </div>
+      );
+  }
+};
+
 function PhoneMockup({
   category,
   placedComponents,
@@ -93,6 +278,13 @@ function PhoneMockup({
   onClearSlot,
   deviceName,
   stats,
+  bodyColor,
+  frameStyle,
+  logoIcon,
+  cameraLayout,
+  boxColor,
+  boxTextColor,
+  boxStyle,
 }: {
   category: DeviceCategory;
   placedComponents: Partial<Record<ComponentSlot, string>>;
@@ -100,7 +292,15 @@ function PhoneMockup({
   onClearSlot: (slot: ComponentSlot) => void;
   deviceName: string;
   stats: DeviceStats;
+  bodyColor: string;
+  frameStyle: string;
+  logoIcon: string;
+  cameraLayout: string;
+  boxColor: string;
+  boxTextColor: string;
+  boxStyle: string;
 }) {
+  const [viewMode, setViewMode] = useState<'front' | 'back' | 'box'>('front');
   const [dragOverSlot, setDragOverSlot] = useState<ComponentSlot | null>(null);
 
   const handleDragOver = useCallback((e: React.DragEvent, slot: ComponentSlot) => {
@@ -128,112 +328,186 @@ function PhoneMockup({
 
   return (
     <div className="relative mx-auto w-56 sm:w-64">
+      {/* View Selector Tabs */}
+      <div className="flex justify-center gap-1.5 mb-4 bg-surface-raised/60 p-1 rounded-xl w-full border border-border/30">
+        {[
+          { id: 'front', label: 'Front', icon: '📱' },
+          { id: 'back', label: 'Back', icon: '🎨' },
+          { id: 'box', label: 'Box', icon: '📦' },
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            onClick={() => setViewMode(tab.id as any)}
+            className={`flex-1 py-1 px-2 text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-1 ${
+              viewMode === tab.id
+                ? 'bg-accent/25 text-accent-soft shadow-sm border border-accent/30'
+                : 'text-muted hover:text-fg'
+            }`}
+          >
+            <span>{tab.icon}</span>
+            <span>{tab.label}</span>
+          </button>
+        ))}
+      </div>
+
       {/* Phone Frame */}
       <div className="relative rounded-[2.8rem] border-[3px] border-border-bright/40 bg-gradient-to-b from-[#1a1f2e] via-[#0f1219] to-[#0a0d12] p-[10px] shadow-[0_20px_60px_rgba(0,0,0,0.6),0_0_0_1px_rgba(255,255,255,0.03)_inset]">
-        {/* Screen Bezel */}
+        {/* Screen Bezel / Device Back / Retail Box */}
         <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-b from-surface to-[#06080c]">
-          {/* Notch */}
-          <div className="relative z-10 flex items-center justify-center bg-black/40 py-1.5 backdrop-blur-sm">
-            <div className="h-1 w-10 rounded-full bg-border-bright/50" />
-            <div className="ml-2 h-1 w-1 rounded-full bg-border-bright/40" />
-          </div>
+          {viewMode === 'front' && (
+            <>
+              {/* Notch */}
+              <div className="relative z-10 flex items-center justify-center bg-black/40 py-1.5 backdrop-blur-sm">
+                <div className="h-1 w-10 rounded-full bg-border-bright/50" />
+                <div className="ml-2 h-1 w-1 rounded-full bg-border-bright/40" />
+              </div>
 
-          {/* Screen Content */}
-          <div className="relative min-h-[28rem] px-3 pb-4 pt-2">
-            {/* Status Bar */}
-            <div className="mb-3 flex items-center justify-between px-1 text-[9px] text-muted/70">
-              <span className="font-mono">9:41</span>
-              <span className="font-semibold">Device Tycoon</span>
-              <span>100%</span>
-            </div>
+              {/* Screen Content */}
+              <div className="relative min-h-[28rem] px-3 pb-4 pt-2">
+                {/* Status Bar */}
+                <div className="mb-3 flex items-center justify-between px-1 text-[9px] text-muted/70">
+                  <span className="font-mono">9:41</span>
+                  <span className="font-semibold">Device Tycoon</span>
+                  <span>100%</span>
+                </div>
 
-            {/* Device Name */}
-            <div className="mb-4 text-center">
-              <p className="text-[10px] uppercase tracking-widest text-muted/50">Device</p>
-              <p className="truncate text-lg font-bold text-fg drop-shadow-lg">{deviceName}</p>
-              <div className="mx-auto mt-1 h-0.5 w-8 rounded-full bg-gradient-to-r from-accent to-glow" />
-            </div>
+                {/* Device Name */}
+                <div className="mb-4 text-center">
+                  <p className="text-[10px] uppercase tracking-widest text-muted/50">Device</p>
+                  <p className="truncate text-lg font-bold text-fg drop-shadow-lg">{deviceName}</p>
+                  <div className="mx-auto mt-1 h-0.5 w-8 rounded-full bg-gradient-to-r from-accent to-glow" />
+                </div>
 
-            {/* Score Badge */}
-            <div className="mx-auto mb-4 flex w-16 items-center justify-center">
-              <div className="relative">
-                <svg className="h-14 w-14 -rotate-90" viewBox="0 0 36 36">
-                  <path
-                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    className="text-surface-hover"
-                  />
-                  <path
-                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    strokeDasharray={`${overallScore}, 100`}
-                    className="text-accent transition-all duration-700"
-                  />
-                </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-xs font-bold text-fg">{overallScore}</span>
-                  <span className="text-[7px] text-muted/60">SCORE</span>
+                {/* Score Badge */}
+                <div className="mx-auto mb-4 flex w-16 items-center justify-center">
+                  <div className="relative">
+                    <svg className="h-14 w-14 -rotate-90" viewBox="0 0 36 36">
+                      <path
+                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        className="text-surface-hover"
+                      />
+                      <path
+                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeDasharray={`${overallScore}, 100`}
+                        className="text-accent transition-all duration-700"
+                      />
+                    </svg>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                      <span className="text-xs font-bold text-fg">{overallScore}</span>
+                      <span className="text-[7px] text-muted/60">SCORE</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Component Slots */}
+                <div className="space-y-1.5">
+                  {slots.map((slot) => {
+                    const comp = placedComponents[slot] ? getComponent(placedComponents[slot]!) : null;
+                    const meta = SLOT_META[slot];
+                    const isOver = dragOverSlot === slot;
+                    return (
+                      <div
+                        key={slot}
+                        onDragOver={(e) => handleDragOver(e, slot)}
+                        onDragLeave={handleDragLeave}
+                        onDrop={(e) => handleDrop(e, slot)}
+                        className={`group flex items-center gap-2 rounded-lg border px-2.5 py-2 transition-all duration-200 ${
+                          comp
+                            ? 'border-accent/30 bg-accent/8 shadow-[0_0_12px_rgba(59,130,246,0.06)]'
+                            : isOver
+                              ? 'border-accent border-dashed bg-accent/15 scale-[1.02] shadow-[0_0_20px_rgba(59,130,246,0.15)]'
+                              : 'border-border/40 border-dashed hover:border-border-bright/60 hover:bg-white/[0.02]'
+                        }`}
+                      >
+                        <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-gradient-to-br ${meta.gradient} text-sm shadow-md`}>
+                          {meta.icon}
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-[9px] font-medium uppercase tracking-wider text-muted/60">{meta.label}</p>
+                          {comp ? (
+                            <p className="truncate text-xs font-medium text-fg">{comp.name}</p>
+                          ) : (
+                            <p className="text-[10px] text-muted/40">Drop component</p>
+                          )}
+                        </div>
+                        {comp && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onClearSlot(slot);
+                            }}
+                            className="hidden h-5 w-5 shrink-0 items-center justify-center rounded-full bg-danger/20 text-[9px] text-danger hover:bg-danger/30 group-hover:flex"
+                          >
+                            ✕
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Bottom Home Indicator */}
+                <div className="mt-4 flex justify-center">
+                  <div className="h-1 w-20 rounded-full bg-white/10" />
                 </div>
               </div>
-            </div>
+            </>
+          )}
 
-            {/* Component Slots */}
-            <div className="space-y-1.5">
-              {slots.map((slot) => {
-                const comp = placedComponents[slot] ? getComponent(placedComponents[slot]!) : null;
-                const meta = SLOT_META[slot];
-                const isOver = dragOverSlot === slot;
-                return (
-                  <div
-                    key={slot}
-                    onDragOver={(e) => handleDragOver(e, slot)}
-                    onDragLeave={handleDragLeave}
-                    onDrop={(e) => handleDrop(e, slot)}
-                    className={`group flex items-center gap-2 rounded-lg border px-2.5 py-2 transition-all duration-200 ${
-                      comp
-                        ? 'border-accent/30 bg-accent/8 shadow-[0_0_12px_rgba(59,130,246,0.06)]'
-                        : isOver
-                          ? 'border-accent border-dashed bg-accent/15 scale-[1.02] shadow-[0_0_20px_rgba(59,130,246,0.15)]'
-                          : 'border-border/40 border-dashed hover:border-border-bright/60 hover:bg-white/[0.02]'
-                    }`}
-                  >
-                    <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-gradient-to-br ${meta.gradient} text-sm shadow-md`}>
-                      {meta.icon}
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-[9px] font-medium uppercase tracking-wider text-muted/60">{meta.label}</p>
-                      {comp ? (
-                        <p className="truncate text-xs font-medium text-fg">{comp.name}</p>
-                      ) : (
-                        <p className="text-[10px] text-muted/40">Drop component</p>
-                      )}
-                    </div>
-                    {comp && (
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onClearSlot(slot);
-                        }}
-                        className="hidden h-5 w-5 shrink-0 items-center justify-center rounded-full bg-danger/20 text-[9px] text-danger hover:bg-danger/30 group-hover:flex"
-                      >
-                        ✕
-                      </button>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+          {viewMode === 'back' && (
+            <div
+              className="relative flex flex-col justify-between p-6 min-h-[28rem] rounded-[2rem] overflow-hidden"
+              style={getFinishStyles(bodyColor, frameStyle)}
+            >
+              {/* Camera module */}
+              {renderCameraModule(cameraLayout, bodyColor, frameStyle)}
 
-            {/* Bottom Home Indicator */}
-            <div className="mt-4 flex justify-center">
-              <div className="h-1 w-20 rounded-full bg-white/10" />
+              {/* Brand Logo in the center */}
+              <div className="flex-1 flex items-center justify-center pt-10">
+                <div
+                  className="text-5xl opacity-85 select-none transform transition-transform duration-300 hover:scale-110"
+                  style={{
+                    filter: 'drop-shadow(0px 2px 4px rgba(0,0,0,0.4))'
+                  }}
+                >
+                  {LOGO_MAP[logoIcon] || '🟢'}
+                </div>
+              </div>
+
+              {/* Device Brand text/info at the bottom */}
+              <div className="text-center pb-2">
+                <p className="text-[9px] tracking-[0.2em] opacity-40 uppercase font-bold text-white/80">{category}</p>
+                <p className="text-[8px] tracking-wider opacity-30 mt-0.5 text-white/60">Designed in Tycoon Lab</p>
+              </div>
             </div>
-          </div>
+          )}
+
+          {viewMode === 'box' && (
+            <div
+              className="relative flex flex-col justify-between min-h-[28rem] rounded-[2rem] overflow-hidden border border-white/10 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.1)] transition-transform duration-300 hover:scale-[1.01]"
+              style={{
+                backgroundColor: boxColor,
+              }}
+            >
+              {/* Side shading / depth lines for 3D packaging effect */}
+              <div className="absolute top-0 left-0 w-2.5 h-full bg-white/5" />
+              <div className="absolute top-0 right-0 w-2.5 h-full bg-black/10" />
+              <div className="absolute top-0 left-0 w-full h-2.5 bg-white/10" />
+              <div className="absolute bottom-0 left-0 w-full h-2.5 bg-black/20" />
+
+              <div className="flex-1">
+                {renderBoxStyle(boxStyle, deviceName, logoIcon, boxTextColor)}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -325,8 +599,29 @@ export function Designer() {
   const saveDesign = useGameStore((s) => s.saveDesign);
   const releaseDevice = useGameStore((s) => s.releaseDevice);
 
+  const [sidebarTab, setSidebarTab] = useState<'components' | 'aesthetics'>('components');
   const [openCategory, setOpenCategory] = useState<ComponentSlot>('screen');
+  const [openAestheticSection, setOpenAestheticSection] = useState<'body' | 'camera' | 'box'>('body');
   const [isReleasing, setIsReleasing] = useState(false);
+
+  const {
+    bodyColor = '#475569',
+    frameStyle = 'Matte Glass',
+    logoIcon = 'Circle',
+    cameraLayout = 'Single Lens',
+    boxColor = '#0f172a',
+    boxTextColor = '#f8fafc',
+    boxStyle = 'Minimalist'
+  } = draft;
+
+  const updateAesthetics = useCallback((updates: Partial<DraftDesign>) => {
+    useGameStore.setState((s) => ({
+      draft: {
+        ...s.draft,
+        ...updates
+      }
+    }));
+  }, []);
 
   const { stats, unitCost } = calcDesignStats(draft.category, draft.components);
   const margin = draft.sellPrice - unitCost;
@@ -378,46 +673,361 @@ export function Designer() {
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-3">
       <div className="flex min-h-0 flex-1 gap-4">
-      {/* ── Left Sidebar: Components ── */}
+      {/* ── Left Sidebar: Components / Aesthetics ── */}
       <aside className="flex w-[300px] shrink-0 flex-col gap-3">
-        {/* Category Tabs */}
-        <div className="flex gap-1 rounded-xl bg-surface-raised/60 p-1">
-          {(Object.keys(CATEGORY_META) as DeviceCategory[]).map((cat) => (
-            <button
-              key={cat}
-              type="button"
-              onClick={() => setDraftCategory(cat)}
-              className={`flex-1 rounded-lg py-2 text-xs font-semibold transition-all ${
-                draft.category === cat
-                  ? 'bg-accent/20 text-accent-soft shadow-sm'
-                  : 'text-muted hover:text-fg'
-              }`}
-            >
-              {CATEGORY_META[cat].icon}
-            </button>
-          ))}
+        {/* Sidebar Tabs */}
+        <div className="flex gap-1 bg-surface-raised/60 p-1 rounded-xl border border-border/30 shrink-0">
+          <button
+            type="button"
+            onClick={() => setSidebarTab('components')}
+            className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${
+              sidebarTab === 'components'
+                ? 'bg-accent/20 text-accent-soft shadow-sm border border-accent/20'
+                : 'text-muted hover:text-fg'
+            }`}
+          >
+            ⚙️ Components
+          </button>
+          <button
+            type="button"
+            onClick={() => setSidebarTab('aesthetics')}
+            className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${
+              sidebarTab === 'aesthetics'
+                ? 'bg-accent/20 text-accent-soft shadow-sm border border-accent/20'
+                : 'text-muted hover:text-fg'
+            }`}
+          >
+            🎨 Aesthetics
+          </button>
         </div>
 
-        {/* Accordion List */}
-        <div className="custom-scrollbar flex-1 space-y-2 overflow-y-auto pr-1">
-          {SLOTS_BY_CATEGORY[draft.category].map((slot) => (
-            <AccordionCategory
-              key={slot}
-              slot={slot}
-              isOpen={openCategory === slot}
-              onToggle={() => setOpenCategory(openCategory === slot ? '' as ComponentSlot : slot)}
-              components={componentsBySlot[slot]}
-              selectedId={draft.components[slot]}
-              onSelect={(id) => setDraftComponent(slot, id)}
-              onDragStart={handleDragStart}
-            />
-          ))}
-        </div>
+        {sidebarTab === 'components' ? (
+          <>
+            {/* Category Tabs */}
+            <div className="flex gap-1 rounded-xl bg-surface-raised/60 p-1 shrink-0">
+              {(Object.keys(CATEGORY_META) as DeviceCategory[]).map((cat) => (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setDraftCategory(cat)}
+                  className={`flex-1 rounded-lg py-2 text-xs font-semibold transition-all ${
+                    draft.category === cat
+                      ? 'bg-accent/20 text-accent-soft shadow-sm'
+                      : 'text-muted hover:text-fg'
+                  }`}
+                >
+                  {CATEGORY_META[cat].icon}
+                </button>
+              ))}
+            </div>
+
+            {/* Accordion List */}
+            <div className="custom-scrollbar flex-1 space-y-2 overflow-y-auto pr-1">
+              {SLOTS_BY_CATEGORY[draft.category].map((slot) => (
+                <AccordionCategory
+                  key={slot}
+                  slot={slot}
+                  isOpen={openCategory === slot}
+                  onToggle={() => setOpenCategory(openCategory === slot ? '' as ComponentSlot : slot)}
+                  components={componentsBySlot[slot]}
+                  selectedId={draft.components[slot]}
+                  onSelect={(id) => setDraftComponent(slot, id)}
+                  onDragStart={handleDragStart}
+                />
+              ))}
+            </div>
+          </>
+        ) : (
+          /* Accordion Aesthetics List */
+          <div className="custom-scrollbar flex-1 space-y-2 overflow-y-auto pr-1">
+            {/* Chassis & Finish Section */}
+            <div className="overflow-hidden rounded-xl border border-border/50 bg-surface-raised/40">
+              <button
+                type="button"
+                onClick={() => setOpenAestheticSection(openAestheticSection === 'body' ? '' as any : 'body')}
+                className={`flex w-full items-center gap-3 px-3 py-3 text-left transition-all ${
+                  openAestheticSection === 'body'
+                    ? 'bg-surface-hover/60 border-b border-border/40'
+                    : 'hover:bg-surface-hover/40'
+                }`}
+              >
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-purple-500 text-sm shadow-lg">🎨</span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-fg">Chassis & Finish</p>
+                  <p className="text-[10px] text-muted/60">Color, finish material</p>
+                </div>
+                <span className={`text-xs transition-transform duration-200 ${openAestheticSection === 'body' ? 'rotate-180' : ''}`}>▾</span>
+              </button>
+              {openAestheticSection === 'body' && (
+                <div className="space-y-4 p-3 bg-surface-raised/20">
+                  {/* Finish Material */}
+                  <div className="space-y-1">
+                    <label className="text-[10px] text-muted uppercase tracking-wider font-bold">Finish Material</label>
+                    <div className="grid grid-cols-3 gap-1">
+                      {FINISH_OPTIONS.map((f) => (
+                        <button
+                          key={f}
+                          type="button"
+                          onClick={() => updateAesthetics({ frameStyle: f })}
+                          className={`py-1.5 px-0.5 text-[9px] font-bold rounded-lg border transition-all ${
+                            frameStyle === f
+                              ? 'bg-accent/20 border-accent/50 text-accent-soft shadow-sm'
+                              : 'border-border/40 hover:border-border-bright/60 hover:bg-white/[0.02] text-muted'
+                          }`}
+                        >
+                          {f.split(' ')[0]}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Body Color Swatches */}
+                  <div className="space-y-1">
+                    <label className="text-[10px] text-muted uppercase tracking-wider font-bold">Color Presets</label>
+                    <div className="grid grid-cols-5 gap-1.5">
+                      {COLOR_PRESETS.map((c) => (
+                        <button
+                          key={c.name}
+                          type="button"
+                          onClick={() => updateAesthetics({ bodyColor: c.hex })}
+                          className={`w-9 h-9 rounded-full border-2 transition-all flex items-center justify-center ${
+                            bodyColor.toLowerCase() === c.hex.toLowerCase()
+                              ? 'border-accent scale-105 shadow-md shadow-accent/20'
+                              : 'border-white/10 hover:scale-105'
+                          }`}
+                          style={{ backgroundColor: c.hex }}
+                          title={c.name}
+                        >
+                          {bodyColor.toLowerCase() === c.hex.toLowerCase() && (
+                            <span className="text-white text-[10px] font-bold drop-shadow-md">✓</span>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Custom Hex Color */}
+                  <div className="flex items-center justify-between border-t border-border/10 pt-3">
+                    <span className="text-[10px] text-muted uppercase tracking-wider font-bold">Custom Hex</span>
+                    <div className="flex items-center gap-1.5">
+                      <input
+                        type="text"
+                        value={bodyColor}
+                        onChange={(e) => updateAesthetics({ bodyColor: e.target.value })}
+                        className="w-16 bg-surface-raised border border-border/40 px-1.5 py-0.5 rounded text-[11px] font-mono outline-none focus:border-accent text-fg"
+                      />
+                      <input
+                        type="color"
+                        value={bodyColor.startsWith('#') && bodyColor.length === 7 ? bodyColor : '#475569'}
+                        onChange={(e) => updateAesthetics({ bodyColor: e.target.value })}
+                        className="w-6 h-6 rounded border border-border/40 cursor-pointer bg-transparent"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Camera & Logo Section */}
+            <div className="overflow-hidden rounded-xl border border-border/50 bg-surface-raised/40">
+              <button
+                type="button"
+                onClick={() => setOpenAestheticSection(openAestheticSection === 'camera' ? '' as any : 'camera')}
+                className={`flex w-full items-center gap-3 px-3 py-3 text-left transition-all ${
+                  openAestheticSection === 'camera'
+                    ? 'bg-surface-hover/60 border-b border-border/40'
+                    : 'hover:bg-surface-hover/40'
+                }`}
+              >
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-pink-500 to-rose-500 text-sm shadow-lg">📷</span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-fg">Camera & Logo</p>
+                  <p className="text-[10px] text-muted/60">Module, brand symbol</p>
+                </div>
+                <span className={`text-xs transition-transform duration-200 ${openAestheticSection === 'camera' ? 'rotate-180' : ''}`}>▾</span>
+              </button>
+              {openAestheticSection === 'camera' && (
+                <div className="space-y-4 p-3 bg-surface-raised/20">
+                  {/* Camera Layout */}
+                  <div className="space-y-1">
+                    <label className="text-[10px] text-muted uppercase tracking-wider font-bold">Camera Module</label>
+                    <div className="grid grid-cols-2 gap-1">
+                      {CAMERA_LAYOUTS.map((layout) => (
+                        <button
+                          key={layout}
+                          type="button"
+                          onClick={() => updateAesthetics({ cameraLayout: layout })}
+                          className={`py-1.5 px-1.5 text-[10px] font-semibold rounded-lg border transition-all text-left ${
+                            cameraLayout === layout
+                              ? 'bg-accent/20 border-accent/50 text-accent-soft'
+                              : 'border-border/40 hover:border-border-bright/60 hover:bg-white/[0.02] text-muted'
+                          }`}
+                        >
+                          {layout}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Logo Symbol */}
+                  <div className="space-y-1">
+                    <label className="text-[10px] text-muted uppercase tracking-wider font-bold">Brand Logo</label>
+                    <div className="grid grid-cols-3 gap-1.5">
+                      {LOGO_OPTIONS.map((logo) => (
+                        <button
+                          key={logo}
+                          type="button"
+                          onClick={() => updateAesthetics({ logoIcon: logo })}
+                          className={`py-2 px-0.5 text-center rounded-lg border transition-all flex flex-col items-center justify-center gap-0.5 ${
+                            logoIcon === logo
+                              ? 'bg-accent/20 border-accent/50 text-accent-soft'
+                              : 'border-border/40 hover:border-border-bright/60 hover:bg-white/[0.02] text-muted'
+                          }`}
+                        >
+                          <span className="text-xl">{LOGO_MAP[logo]}</span>
+                          <span className="text-[8px] uppercase tracking-wider">{logo}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Packaging Box Section */}
+            <div className="overflow-hidden rounded-xl border border-border/50 bg-surface-raised/40">
+              <button
+                type="button"
+                onClick={() => setOpenAestheticSection(openAestheticSection === 'box' ? '' as any : 'box')}
+                className={`flex w-full items-center gap-3 px-3 py-3 text-left transition-all ${
+                  openAestheticSection === 'box'
+                    ? 'bg-surface-hover/60 border-b border-border/40'
+                    : 'hover:bg-surface-hover/40'
+                }`}
+              >
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500 to-orange-500 text-sm shadow-lg">📦</span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-fg">Retail Box</p>
+                  <p className="text-[10px] text-muted/60">Packaging box options</p>
+                </div>
+                <span className={`text-xs transition-transform duration-200 ${openAestheticSection === 'box' ? 'rotate-180' : ''}`}>▾</span>
+              </button>
+              {openAestheticSection === 'box' && (
+                <div className="space-y-4 p-3 bg-surface-raised/20">
+                  {/* Box Style */}
+                  <div className="space-y-1">
+                    <label className="text-[10px] text-muted uppercase tracking-wider font-bold">Box Layout</label>
+                    <div className="grid grid-cols-3 gap-1">
+                      {BOX_STYLES.map((style) => (
+                        <button
+                          key={style}
+                          type="button"
+                          onClick={() => updateAesthetics({ boxStyle: style })}
+                          className={`py-1.5 px-0.5 text-[9px] font-bold rounded-lg border transition-all ${
+                            boxStyle === style
+                              ? 'bg-accent/20 border-accent/50 text-accent-soft'
+                              : 'border-border/40 hover:border-border-bright/60 hover:bg-white/[0.02] text-muted'
+                          }`}
+                        >
+                          {style}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Box Color */}
+                  <div className="space-y-1">
+                    <label className="text-[10px] text-muted uppercase tracking-wider font-bold">Box Color</label>
+                    <div className="grid grid-cols-5 gap-1.5">
+                      {BOX_COLOR_PRESETS.map((c) => (
+                        <button
+                          key={c.name}
+                          type="button"
+                          onClick={() => updateAesthetics({ boxColor: c.hex })}
+                          className={`w-9 h-9 rounded-full border-2 transition-all flex items-center justify-center ${
+                            boxColor.toLowerCase() === c.hex.toLowerCase()
+                              ? 'border-accent scale-105 shadow-md shadow-accent/20'
+                              : 'border-white/10 hover:scale-105'
+                          }`}
+                          style={{ backgroundColor: c.hex }}
+                          title={c.name}
+                        >
+                          {boxColor.toLowerCase() === c.hex.toLowerCase() && (
+                            <span className="text-white text-[10px] font-bold drop-shadow-md">✓</span>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="flex items-center justify-between border-t border-border/10 pt-2.5 mt-2">
+                      <span className="text-[9px] text-muted uppercase tracking-wider font-bold">Custom Box Color</span>
+                      <div className="flex items-center gap-1.5">
+                        <input
+                          type="text"
+                          value={boxColor}
+                          onChange={(e) => updateAesthetics({ boxColor: e.target.value })}
+                          className="w-16 bg-surface-raised border border-border/40 px-1.5 py-0.5 rounded text-[11px] font-mono outline-none focus:border-accent text-fg"
+                        />
+                        <input
+                          type="color"
+                          value={boxColor.startsWith('#') && boxColor.length === 7 ? boxColor : '#0f172a'}
+                          onChange={(e) => updateAesthetics({ boxColor: e.target.value })}
+                          className="w-6 h-6 rounded border border-border/40 cursor-pointer bg-transparent"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Text Color */}
+                  <div className="space-y-1">
+                    <label className="text-[10px] text-muted uppercase tracking-wider font-bold">Font / Foil Color</label>
+                    <div className="grid grid-cols-5 gap-1.5">
+                      {BOX_TEXT_PRESETS.map((c) => (
+                        <button
+                          key={c.name}
+                          type="button"
+                          onClick={() => updateAesthetics({ boxTextColor: c.hex })}
+                          className={`w-9 h-9 rounded-full border-2 transition-all flex items-center justify-center ${
+                            boxTextColor.toLowerCase() === c.hex.toLowerCase()
+                              ? 'border-accent scale-105 shadow-md shadow-accent/20'
+                              : 'border-white/10 hover:scale-105'
+                          }`}
+                          style={{ backgroundColor: c.hex }}
+                          title={c.name}
+                        >
+                          {boxTextColor.toLowerCase() === c.hex.toLowerCase() && (
+                            <span className="text-white text-[10px] font-bold drop-shadow-md">✓</span>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="flex items-center justify-between border-t border-border/10 pt-2.5 mt-2">
+                      <span className="text-[9px] text-muted uppercase tracking-wider font-bold">Custom Text Color</span>
+                      <div className="flex items-center gap-1.5">
+                        <input
+                          type="text"
+                          value={boxTextColor}
+                          onChange={(e) => updateAesthetics({ boxTextColor: e.target.value })}
+                          className="w-16 bg-surface-raised border border-border/40 px-1.5 py-0.5 rounded text-[11px] font-mono outline-none focus:border-accent text-fg"
+                        />
+                        <input
+                          type="color"
+                          value={boxTextColor.startsWith('#') && boxTextColor.length === 7 ? boxTextColor : '#f8fafc'}
+                          onChange={(e) => updateAesthetics({ boxTextColor: e.target.value })}
+                          className="w-6 h-6 rounded border border-border/40 cursor-pointer bg-transparent"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </aside>
 
       {/* ── Center: Device Preview ── */}
       <main className="flex min-w-0 flex-1 flex-col gap-3">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between shrink-0">
           <h2 className="text-lg font-bold">Device Designer</h2>
           <Button
             variant="secondary"
@@ -458,6 +1068,13 @@ export function Designer() {
               onClearSlot={handleClearSlot}
               deviceName={draft.name}
               stats={stats}
+              bodyColor={bodyColor}
+              frameStyle={frameStyle}
+              logoIcon={logoIcon}
+              cameraLayout={cameraLayout}
+              boxColor={boxColor}
+              boxTextColor={boxTextColor}
+              boxStyle={boxStyle}
             />
           </div>
         </Card>

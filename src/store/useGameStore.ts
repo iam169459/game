@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { api } from '../lib/api';
 import { CAMPAIGNS } from '../data/marketing';
 import { COMPONENTS, SLOTS_BY_CATEGORY } from '../data/components';
 import { ALL_ACHIEVEMENTS } from '../data/achievements';
@@ -108,6 +109,9 @@ interface GameStore {
   friends: Friend[];
   autoAdvance: boolean;
   autoAdvanceSpeed: number;
+  playerUuid: string | null;
+  cloudSyncStatus: 'synced' | 'syncing' | 'error' | 'local';
+  lastSyncedAt: string | null;
 
   // New systems
   retailStores: RetailStore[];
@@ -181,6 +185,9 @@ interface GameStore {
   // Stocks
   buyStock: (botId: string, shares: number) => boolean;
   sellStock: (botId: string, shares: number) => boolean;
+
+  syncCloudSave: () => Promise<boolean>;
+  loadCloudSave: (serverState: any) => void;
 }
 
 function initialFactories(): ProductionLine[] {
@@ -240,6 +247,13 @@ function createDraft(category: DeviceCategory, unlockedTech: string[]): DraftDes
     category,
     components,
     sellPrice: suggestPrice(stats, unitCost, category),
+    bodyColor: '#475569',
+    frameStyle: 'Matte Glass',
+    logoIcon: 'Circle',
+    cameraLayout: 'Single Lens',
+    boxColor: '#0f172a',
+    boxTextColor: '#f8fafc',
+    boxStyle: 'Minimalist',
   };
 }
 
@@ -362,6 +376,9 @@ const INITIAL_STATE = {
   friends: [] as Friend[],
   autoAdvance: false,
   autoAdvanceSpeed: 1,
+  playerUuid: null as string | null,
+  cloudSyncStatus: 'local' as 'synced' | 'syncing' | 'error' | 'local',
+  lastSyncedAt: null as string | null,
   retailStores: [] as RetailStore[],
   achievements: initialAchievements(),
   loans: [] as Loan[],
@@ -419,13 +436,14 @@ export const useGameStore = create<GameStore>()(
         });
       },
 
-      startGame: (name) => {
+      startGame: async (name) => {
         const companyName = name.trim() || 'Garage Labs';
         set({
           ...INITIAL_STATE,
           gameStarted: true,
           companyName,
           screen: 'devices',
+          cloudSyncStatus: 'syncing',
           factories: initialFactories(),
           marketTrends: initialTrends(),
           draft: createDraft('smartphone', []),
@@ -436,18 +454,78 @@ export const useGameStore = create<GameStore>()(
           achievements: initialAchievements(),
           notification: 'Welcome to your garage! Design a device, then release it to market. 🚀',
         });
+
+        try {
+          const res = await api.registerPlayer(companyName);
+          if (res.success && res.uuid) {
+            set({
+              playerUuid: res.uuid,
+              cloudSyncStatus: 'synced',
+              lastSyncedAt: new Date().toLocaleTimeString(),
+            });
+            await api.saveGame(res.uuid, get());
+          } else {
+            set({
+              cloudSyncStatus: 'local',
+              notification: `Connected locally. Server: ${res.message}`,
+            });
+          }
+        } catch {
+          set({ cloudSyncStatus: 'local' });
+        }
+      },
+
+      syncCloudSave: async () => {
+        const s = get();
+        if (!s.playerUuid) return false;
+        set({ cloudSyncStatus: 'syncing' });
+        try {
+          const success = await api.saveGame(s.playerUuid, s);
+          if (success) {
+            set({
+              cloudSyncStatus: 'synced',
+              lastSyncedAt: new Date().toLocaleTimeString(),
+            });
+            return true;
+          } else {
+            set({ cloudSyncStatus: 'error' });
+            return false;
+          }
+        } catch {
+          set({ cloudSyncStatus: 'error' });
+          return false;
+        }
+      },
+
+      loadCloudSave: (serverState) => {
+        if (!serverState) return;
+        const currentScreen = get().screen;
+        set({
+          ...serverState,
+          screen: currentScreen,
+          cloudSyncStatus: 'synced',
+          lastSyncedAt: new Date().toLocaleTimeString(),
+        });
       },
 
       setDraftCategory: (category) => {
         const { unlockedTech } = get();
         const components = getDefaultComponents(category, unlockedTech);
         const { stats, unitCost } = calcDesignStats(category, components);
+        const currentDraft = get().draft;
         set({
           draft: {
-            name: get().draft.name,
+            name: currentDraft.name,
             category,
             components,
             sellPrice: suggestPrice(stats, unitCost, category),
+            bodyColor: currentDraft.bodyColor ?? '#475569',
+            frameStyle: currentDraft.frameStyle ?? 'Matte Glass',
+            logoIcon: currentDraft.logoIcon ?? 'Circle',
+            cameraLayout: currentDraft.cameraLayout ?? 'Single Lens',
+            boxColor: currentDraft.boxColor ?? '#0f172a',
+            boxTextColor: currentDraft.boxTextColor ?? '#f8fafc',
+            boxStyle: currentDraft.boxStyle ?? 'Minimalist',
           },
         });
       },
@@ -483,6 +561,13 @@ export const useGameStore = create<GameStore>()(
           unitCost,
           sellPrice: draft.sellPrice,
           createdDay: day,
+          bodyColor: draft.bodyColor,
+          frameStyle: draft.frameStyle,
+          logoIcon: draft.logoIcon,
+          cameraLayout: draft.cameraLayout,
+          boxColor: draft.boxColor,
+          boxTextColor: draft.boxTextColor,
+          boxStyle: draft.boxStyle,
         };
         set({
           designs: [...designs, design],
@@ -530,6 +615,13 @@ export const useGameStore = create<GameStore>()(
           createdDay: day,
           reviewScore: review.score,
           reviewFeedback: review.feedbacks,
+          bodyColor: draft.bodyColor,
+          frameStyle: draft.frameStyle,
+          logoIcon: draft.logoIcon,
+          cameraLayout: draft.cameraLayout,
+          boxColor: draft.boxColor,
+          boxTextColor: draft.boxTextColor,
+          boxStyle: draft.boxStyle,
         };
         const avgStats = Object.values(stats).reduce((a, b) => a + b, 0) / 6;
         const { marketingBonus } = getTechEffects(unlockedTech);
@@ -1323,7 +1415,22 @@ export const useGameStore = create<GameStore>()(
             })(),
           },
         });
-        if (isNewMonth) get().advanceMonth();
+        if (isNewMonth) {
+          get().advanceMonth();
+          const { playerUuid } = get();
+          if (playerUuid) {
+            set({ cloudSyncStatus: 'syncing' });
+            api.saveGame(playerUuid, get()).then((success) => {
+              if (success) {
+                set({ cloudSyncStatus: 'synced', lastSyncedAt: new Date().toLocaleTimeString() });
+              } else {
+                set({ cloudSyncStatus: 'error' });
+              }
+            }).catch(() => {
+              set({ cloudSyncStatus: 'error' });
+            });
+          }
+        }
       },
     }),
     {
@@ -1363,6 +1470,8 @@ export const useGameStore = create<GameStore>()(
           stockPrices:       clean.stockPrices        ?? current.stockPrices        ?? INITIAL_STATE.stockPrices,
           playerPortfolio:   clean.playerPortfolio    ?? current.playerPortfolio    ?? INITIAL_STATE.playerPortfolio,
           monthAccumulator:  clean.monthAccumulator   ?? current.monthAccumulator   ?? INITIAL_STATE.monthAccumulator,
+          playerUuid:        clean.playerUuid         ?? current.playerUuid         ?? null,
+          lastSyncedAt:      clean.lastSyncedAt       ?? current.lastSyncedAt       ?? null,
         };
       },
       partialize: (s) => ({
@@ -1386,6 +1495,8 @@ export const useGameStore = create<GameStore>()(
         achievements: s.achievements, loans: s.loans, newsHistory: s.newsHistory,
         stockPrices: s.stockPrices, playerPortfolio: s.playerPortfolio,
         monthAccumulator: s.monthAccumulator,
+        playerUuid: s.playerUuid,
+        lastSyncedAt: s.lastSyncedAt,
       }),
     },
   ),

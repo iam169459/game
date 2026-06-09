@@ -9,6 +9,7 @@
     "dev": "tsx src/server.ts"
   },
   "dependencies": {
+    "@google-cloud/firestore": "^8.6.0",
     "cors": "^2.8.5",
     "express": "^4.21.0"
   },

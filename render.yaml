@@ -11,6 +11,9 @@ services:
         value: 3001
       - key: NODE_ENV
         value: production
+      - key: FIREBASE_PROJECT_ID
+      - key: FIREBASE_CLIENT_EMAIL
+      - key: FIREBASE_PRIVATE_KEY
     # Note: Render Free tier does not support persistent disks.
     # If you upgrade to a paid Render plan (e.g. Starter) to retain player profile data
     # across server restarts, uncomment the following block before deploying:

@@ -85,7 +85,7 @@ app.post('/api/players', async (req, res) => {
     return sendResult(res, { success: false, message: 'Username must be 32 characters or less.' });
   }
 
-  if (playerStore.usernameExists(username.trim())) {
+  if (await playerStore.usernameExists(username.trim())) {
     return sendResult(res, { success: false, message: `Username "${username}" is already taken.` });
   }
 
@@ -100,8 +100,8 @@ app.post('/api/players', async (req, res) => {
 });
 
 /** GET /api/players/:uuid — Get player profile */
-app.get('/api/players/:uuid', (req, res) => {
-  const profile = playerStore.getByUuid(req.params.uuid);
+app.get('/api/players/:uuid', async (req, res) => {
+  const profile = await playerStore.getByUuid(req.params.uuid);
   if (!profile) {
     return sendResult(res, { success: false, message: 'Player not found.' });
   }
@@ -109,8 +109,8 @@ app.get('/api/players/:uuid', (req, res) => {
 });
 
 /** GET /api/players — List all players */
-app.get('/api/players', (_req, res) => {
-  const players = playerStore.getAllPlayers().map((p) => ({
+app.get('/api/players', async (_req, res) => {
+  const players = (await playerStore.getAllPlayers()).map((p) => ({
     uuid: p.uuid,
     username: p.username,
     walletBalance: p.walletBalance,
@@ -120,6 +120,32 @@ app.get('/api/players', (_req, res) => {
     lastActiveAt: p.lastActiveAt,
   }));
   sendResult(res, { success: true, message: `Found ${players.length} players.`, data: players });
+});
+
+/** POST /api/players/:uuid/save — Save client game state */
+app.post('/api/players/:uuid/save', async (req, res) => {
+  const { uuid } = req.params;
+  const { saveState } = req.body;
+  if (!saveState) {
+    return sendResult(res, { success: false, message: 'saveState is required.' });
+  }
+  const exists = await playerStore.uuidExists(uuid);
+  if (!exists) {
+    return sendResult(res, { success: false, message: 'Player not found.' });
+  }
+  await playerStore.saveGameState(uuid, saveState);
+  sendResult(res, { success: true, message: 'Game state synced successfully.' });
+});
+
+/** GET /api/players/:uuid/save — Load client game state */
+app.get('/api/players/:uuid/save', async (req, res) => {
+  const { uuid } = req.params;
+  const exists = await playerStore.uuidExists(uuid);
+  if (!exists) {
+    return sendResult(res, { success: false, message: 'Player not found.' });
+  }
+  const saveState = await playerStore.loadGameState(uuid);
+  sendResult(res, { success: true, message: 'Game state loaded.', data: saveState });
 });
 
 // ═════════════════════════════════════════════════════════════════
@@ -167,8 +193,8 @@ app.post('/api/social/donate', async (req, res) => {
 });
 
 /** GET /api/social/friends/:uuid */
-app.get('/api/social/friends/:uuid', (req, res) => {
-  const result = getFriendList(req.params.uuid);
+app.get('/api/social/friends/:uuid', async (req, res) => {
+  const result = await getFriendList(req.params.uuid);
   sendResult(res, result);
 });
 
@@ -275,8 +301,8 @@ app.get('/api/admin/tick-report', (_req, res) => {
 });
 
 /** GET /api/admin/stats */
-app.get('/api/admin/stats', (_req, res) => {
-  const players = playerStore.getAllPlayers();
+app.get('/api/admin/stats', async (_req, res) => {
+  const players = await playerStore.getAllPlayers();
   const totalBalance = players.reduce((sum, p) => sum + p.walletBalance, 0);
   const totalDevices = players.reduce((sum, p) => sum + p.ownedDevices.length, 0);
   const totalEmployees = players.reduce((sum, p) => sum + p.hiredEmployees.length, 0);

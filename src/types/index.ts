@@ -96,6 +96,13 @@ export interface ProductDesign {
   createdDay: number;
   reviewScore?: number;
   reviewFeedback?: string[];
+  bodyColor?: string;
+  frameStyle?: string;
+  logoIcon?: string;
+  cameraLayout?: string;
+  boxColor?: string;
+  boxTextColor?: string;
+  boxStyle?: string;
 }
 
 export interface TechNode {
@@ -173,6 +180,13 @@ export interface ReleasedDevice {
   reviewFeedback?: string[];
   hype?: number;
   isDiscontinued?: boolean;
+  bodyColor?: string;
+  frameStyle?: string;
+  logoIcon?: string;
+  cameraLayout?: string;
+  boxColor?: string;
+  boxTextColor?: string;
+  boxStyle?: string;
 }
 
 export interface MonthlySales {
@@ -264,6 +278,13 @@ export interface DraftDesign {
   category: DeviceCategory;
   components: Partial<Record<ComponentSlot, string>>;
   sellPrice: number;
+  bodyColor?: string;
+  frameStyle?: string;
+  logoIcon?: string;
+  cameraLayout?: string;
+  boxColor?: string;
+  boxTextColor?: string;
+  boxStyle?: string;
 }
 
 export interface CraftedPart {
@@ -391,6 +412,8 @@ export interface GameSave {
     unitsSold: number;
     deviceSales: Record<string, number>;
   };
+  playerUuid?: string | null;
+  lastSyncedAt?: string | null;
 }
 
 export interface StockHolding {
