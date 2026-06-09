@@ -103,6 +103,18 @@ export interface ProductDesign {
   boxColor?: string;
   boxTextColor?: string;
   boxStyle?: string;
+  notchStyle?: string;
+  screenCurvature?: string;
+  buttonColor?: string;
+  buttonStyle?: string;
+  bezelSize?: string;
+  strapType?: string;
+  strapColor?: string;
+  backlightColor?: string;
+  smartwatchShape?: string;
+  logoGlow?: string;
+  cameraShape?: string;
+  buttonPlacement?: string;
 }
 
 export interface TechNode {
@@ -187,6 +199,18 @@ export interface ReleasedDevice {
   boxColor?: string;
   boxTextColor?: string;
   boxStyle?: string;
+  notchStyle?: string;
+  screenCurvature?: string;
+  buttonColor?: string;
+  buttonStyle?: string;
+  bezelSize?: string;
+  strapType?: string;
+  strapColor?: string;
+  backlightColor?: string;
+  smartwatchShape?: string;
+  logoGlow?: string;
+  cameraShape?: string;
+  buttonPlacement?: string;
 }
 
 export interface MonthlySales {
@@ -285,6 +309,18 @@ export interface DraftDesign {
   boxColor?: string;
   boxTextColor?: string;
   boxStyle?: string;
+  notchStyle?: string;
+  screenCurvature?: string;
+  buttonColor?: string;
+  buttonStyle?: string;
+  bezelSize?: string;
+  strapType?: string;
+  strapColor?: string;
+  backlightColor?: string;
+  smartwatchShape?: string;
+  logoGlow?: string;
+  cameraShape?: string;
+  buttonPlacement?: string;
 }
 
 export interface CraftedPart {

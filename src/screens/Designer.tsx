@@ -116,9 +116,36 @@ const BOX_TEXT_PRESETS = [
 ];
 
 const CAMERA_LAYOUTS = ['Single Lens', 'Vertical Dual', 'Square Triple', 'Ring Array', 'Circular'];
-const FINISH_OPTIONS = ['Matte Glass', 'Brushed Titanium', 'Glossy Ceramic'];
+const FINISH_OPTIONS = ['Matte Glass', 'Brushed Titanium', 'Glossy Ceramic', 'Eco-Leather', 'Carbon Fiber', 'Stellar Glitter', 'Matte Plastic'];
 const LOGO_OPTIONS = ['Circle', 'Apple', 'Star', 'Leaf', 'Delta', 'Orb', 'Helix', 'Apex', 'Square'];
 const BOX_STYLES = ['Minimalist', 'Premium', 'Bold'];
+
+const NOTCH_STYLES = ['Punch Hole', 'Waterdrop', 'Dynamic Island', 'Bezelless'];
+const CURVATURE_OPTIONS = ['Flat', 'Curved'];
+const BEZEL_SIZES = ['Bezel-less', 'Thin', 'Standard', 'Thick'];
+const BUTTON_STYLES = ['Classic', 'Pill', 'Accent'];
+const STRAP_TYPES = ['Sport', 'Leather', 'Milanese'];
+
+const SMARTWATCH_SHAPES = ['Square', 'Round'];
+const LOGO_GLOW_OPTIONS = ['None', 'White', 'Accent', 'Rainbow'];
+const CAMERA_SHAPES = ['Circular', 'Square', 'Pill', 'Integrated'];
+const BUTTON_PLACEMENTS = ['Right Side', 'Left Side', 'Both Sides', 'Top Edge'];
+
+const STRAP_COLOR_PRESETS = [
+  { name: 'Matte Black', hex: '#1c1c1e' },
+  { name: 'Apple Orange', hex: '#f97316' },
+  { name: 'Navy Blue', hex: '#1e3a8a' },
+  { name: 'Forest Green', hex: '#064e3b' },
+  { name: 'Mist Gray', hex: '#94a3b8' },
+];
+
+const BACKLIGHT_PRESETS = [
+  { name: 'Electric Cyan', hex: '#06b6d4' },
+  { name: 'Crimson Red', hex: '#ef4444' },
+  { name: 'Toxic Green', hex: '#22c55e' },
+  { name: 'Neon Violet', hex: '#a855f7' },
+  { name: 'Sunset Orange', hex: '#f97316' },
+];
 
 const LOGO_MAP: Record<string, string> = {
   Circle: '🟢',
@@ -130,6 +157,93 @@ const LOGO_MAP: Record<string, string> = {
   Helix: '🌀',
   Apex: '⚡',
   Square: '⏹️',
+};
+
+const renderNotch = (style: string) => {
+  switch (style) {
+    case 'Punch Hole':
+      return (
+        <div className="relative z-10 flex justify-center pt-2 pb-1 bg-black/5">
+          <div className="w-2.5 h-2.5 rounded-full bg-zinc-950 border border-zinc-800/80 shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)] flex items-center justify-center">
+            <div className="w-1 h-1 rounded-full bg-indigo-900/50" />
+          </div>
+        </div>
+      );
+    case 'Waterdrop':
+      return (
+        <div className="relative z-10 flex justify-center bg-black/5">
+          <div className="w-6 h-3 bg-zinc-950 rounded-b-xl border-x border-b border-zinc-800/40 relative -top-px flex items-center justify-center">
+            <div className="w-1.5 h-1.5 rounded-full bg-zinc-900" />
+          </div>
+        </div>
+      );
+    case 'Dynamic Island':
+      return (
+        <div className="relative z-10 flex justify-center pt-2 pb-1 bg-black/5">
+          <div className="w-16 h-4 bg-zinc-950 rounded-full border border-zinc-800/50 shadow-md flex items-center justify-between px-2">
+            <div className="w-1 h-1 rounded-full bg-green-500/80 animate-pulse" />
+            <div className="text-[6px] font-semibold text-zinc-500 font-mono tracking-tighter">9:41</div>
+            <div className="w-1.5 h-1.5 rounded-full bg-zinc-900" />
+          </div>
+        </div>
+      );
+    case 'Bezelless':
+    default:
+      return (
+        <div className="relative z-10 pt-2 pb-1" />
+      );
+  }
+};
+
+const renderWatchStraps = (type: string, color: string) => {
+  const strapPattern = type === 'Milanese'
+    ? 'repeating-linear-gradient(45deg, rgba(255,255,255,0.06) 0px, rgba(255,255,255,0.06) 1px, transparent 1px, transparent 3px)'
+    : type === 'Leather'
+      ? 'linear-gradient(to right, rgba(0,0,0,0.15), transparent 15%, transparent 85%, rgba(0,0,0,0.15))'
+      : 'repeating-linear-gradient(to bottom, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 8px, transparent 8px, transparent 16px)';
+
+  return (
+    <>
+      <div
+        className="absolute -top-14 left-1/2 -translate-x-1/2 w-28 h-20 rounded-t-2xl shadow-lg border-x border-t border-white/10 z-[-1] transition-all duration-300"
+        style={{
+          backgroundColor: color,
+          backgroundImage: strapPattern,
+          boxShadow: '0 -4px 10px rgba(0,0,0,0.5)'
+        }}
+      />
+      <div
+        className="absolute -bottom-14 left-1/2 -translate-x-1/2 w-28 h-20 rounded-b-2xl shadow-lg border-x border-b border-white/10 z-[-1] transition-all duration-300"
+        style={{
+          backgroundColor: color,
+          backgroundImage: strapPattern,
+          boxShadow: '0 4px 10px rgba(0,0,0,0.5)'
+        }}
+      />
+    </>
+  );
+};
+
+const renderLaptopDeck = (backlightColor: string) => {
+  return (
+    <div
+      className="absolute bottom-[-16px] left-1/2 -translate-x-1/2 w-72 h-8 bg-zinc-800 rounded-b-md border-t border-zinc-700/60 shadow-2xl flex flex-col justify-end p-1 z-[-1]"
+      style={{
+        boxShadow: `0 8px 25px rgba(0,0,0,0.8), 0 0 12px ${backlightColor}40`
+      }}
+    >
+      <div className="w-16 h-3 bg-zinc-900 rounded mx-auto border border-zinc-800/80 mb-0.5" />
+      <div className="flex justify-between px-4 gap-0.5">
+        {Array.from({ length: 14 }).map((_, i) => (
+          <div
+            key={i}
+            className="h-1 flex-1 rounded-sm transition-all duration-300"
+            style={{ backgroundColor: backlightColor, opacity: 0.6, boxShadow: `0 0 4px ${backlightColor}` }}
+          />
+        ))}
+      </div>
+    </div>
+  );
 };
 
 const getFinishStyles = (color: string, finish: string): React.CSSProperties => {
@@ -146,6 +260,36 @@ const getFinishStyles = (color: string, finish: string): React.CSSProperties => 
         backgroundImage: 'linear-gradient(135deg, transparent 30%, rgba(255,255,255,0.25) 45%, rgba(255,255,255,0.25) 50%, transparent 55%), linear-gradient(to bottom, rgba(255,255,255,0.05), rgba(0,0,0,0.3))',
         boxShadow: 'inset 0 0 20px rgba(255,255,255,0.2), 0 4px 20px rgba(0,0,0,0.5)',
       };
+    case 'Eco-Leather':
+      return {
+        backgroundColor: color,
+        backgroundImage: 'radial-gradient(circle, rgba(0,0,0,0.15) 1px, transparent 1px), radial-gradient(circle, rgba(0,0,0,0.15) 1px, transparent 1px)',
+        backgroundSize: '4px 4px',
+        backgroundPosition: '0 0, 2px 2px',
+        boxShadow: 'inset 0 0 20px rgba(0,0,0,0.6), inset 0 0 5px rgba(0,0,0,0.4)',
+      };
+    case 'Carbon Fiber':
+      return {
+        backgroundColor: '#151515',
+        backgroundImage: 'linear-gradient(45deg, #111 25%, transparent 25%), linear-gradient(-45deg, #111 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #111 75%), linear-gradient(-45deg, transparent 75%, #111 75%)',
+        backgroundSize: '10px 10px',
+        backgroundPosition: '0 0, 0 5px, 5px -5px, -5px 0px',
+        boxShadow: 'inset 0 0 15px rgba(0,0,0,0.8), inset 0 2px 4px rgba(255,255,255,0.05)',
+      };
+    case 'Stellar Glitter':
+      return {
+        backgroundColor: color,
+        backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.2) 1.5px, transparent 1.5px), radial-gradient(circle, rgba(255,255,255,0.15) 1px, transparent 1.5px)',
+        backgroundSize: '16px 16px',
+        backgroundPosition: '0 0, 8px 8px',
+        boxShadow: 'inset 0 0 12px rgba(255,255,255,0.15), inset 0 -2px 6px rgba(0,0,0,0.4)',
+      };
+    case 'Matte Plastic':
+      return {
+        backgroundColor: color,
+        backgroundImage: 'linear-gradient(to bottom, rgba(255,255,255,0.02), rgba(0,0,0,0.15))',
+        boxShadow: 'inset 0 0 8px rgba(0,0,0,0.25)',
+      };
     case 'Matte Glass':
     default:
       return {
@@ -156,15 +300,35 @@ const getFinishStyles = (color: string, finish: string): React.CSSProperties => 
   }
 };
 
-const renderCameraModule = (layout: string, _color: string, _finish: string) => {
+const renderCameraModule = (layout: string, shape: string = 'Integrated') => {
   const lensStyle = "w-6 h-6 rounded-full bg-black flex items-center justify-center relative overflow-hidden border border-zinc-700/50 shadow-inner";
   const lensGlassStyle = "absolute inset-0.5 rounded-full bg-gradient-to-tr from-cyan-600/30 to-zinc-900 shadow-[inset_0_2px_4px_rgba(255,255,255,0.2)] after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:w-1.5 after:h-1.5 after:rounded-full after:bg-white/60";
   const flashStyle = "w-2.5 h-2.5 rounded-full bg-amber-200/90 border border-amber-300 shadow-[0_0_8px_rgba(251,191,36,0.8)]";
 
+  let containerStyle = "absolute top-4 left-4 bg-black/35 backdrop-blur-md border border-white/10 p-2 shadow-lg transition-all duration-300 z-10 ";
+  if (shape === 'Circular') {
+    containerStyle += "rounded-full flex flex-col items-center justify-center gap-1.5 w-18 h-18";
+  } else if (shape === 'Square') {
+    containerStyle += "rounded-2xl grid grid-cols-2 gap-1.5 w-18 h-18 items-center justify-items-center";
+  } else if (shape === 'Pill') {
+    containerStyle += "rounded-full flex flex-col items-center gap-1.5 w-10 py-3";
+  } else { // Integrated (no bump)
+    containerStyle = "absolute top-4 left-4 flex flex-col gap-2 transition-all duration-300 z-10";
+  }
+
+  const isIntegrated = shape === 'Integrated';
+
   switch (layout) {
     case 'Single Lens':
-      return (
-        <div className="absolute top-4 left-4 bg-black/20 backdrop-blur-sm border border-white/10 rounded-2xl p-2 flex items-center gap-2 shadow-lg">
+      return isIntegrated ? (
+        <div className="absolute top-4 left-4 flex items-center gap-2 z-10">
+          <div className={`${lensStyle} ring-2 ring-white/10`}>
+            <div className={lensGlassStyle} />
+          </div>
+          <div className={flashStyle} />
+        </div>
+      ) : (
+        <div className={`${containerStyle} flex items-center gap-2 w-auto h-auto`}>
           <div className={lensStyle}>
             <div className={lensGlassStyle} />
           </div>
@@ -172,8 +336,18 @@ const renderCameraModule = (layout: string, _color: string, _finish: string) => 
         </div>
       );
     case 'Vertical Dual':
-      return (
-        <div className="absolute top-4 left-4 bg-black/25 backdrop-blur-md border border-white/10 rounded-2xl p-2 flex flex-col items-center gap-2 shadow-lg">
+      return isIntegrated ? (
+        <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
+          <div className={`${lensStyle} ring-2 ring-white/10`}>
+            <div className={lensGlassStyle} />
+          </div>
+          <div className={`${lensStyle} ring-2 ring-white/10`}>
+            <div className={lensGlassStyle} />
+          </div>
+          <div className={`${flashStyle} self-center`} />
+        </div>
+      ) : (
+        <div className={`${containerStyle} ${shape !== 'Pill' ? 'w-10 flex flex-col items-center py-2' : ''}`}>
           <div className={lensStyle}>
             <div className={lensGlassStyle} />
           </div>
@@ -184,8 +358,15 @@ const renderCameraModule = (layout: string, _color: string, _finish: string) => 
         </div>
       );
     case 'Square Triple':
-      return (
-        <div className="absolute top-4 left-4 bg-black/25 backdrop-blur-md border border-white/10 rounded-3xl p-2.5 grid grid-cols-2 gap-2 shadow-lg w-18 h-18 items-center justify-items-center">
+      return isIntegrated ? (
+        <div className="absolute top-4 left-4 grid grid-cols-2 gap-2 z-10">
+          <div className={`${lensStyle} ring-2 ring-white/10`}><div className={lensGlassStyle} /></div>
+          <div className={`${lensStyle} ring-2 ring-white/10`}><div className={lensGlassStyle} /></div>
+          <div className={`${lensStyle} ring-2 ring-white/10`}><div className={lensGlassStyle} /></div>
+          <div className={`${flashStyle} self-center justify-self-center`} />
+        </div>
+      ) : (
+        <div className={`${containerStyle} ${shape !== 'Square' ? 'grid grid-cols-2 gap-2 w-16 h-16 items-center justify-items-center rounded-2xl' : ''}`}>
           <div className={lensStyle}>
             <div className={lensGlassStyle} />
           </div>
@@ -199,8 +380,15 @@ const renderCameraModule = (layout: string, _color: string, _finish: string) => 
         </div>
       );
     case 'Ring Array':
-      return (
-        <div className="absolute top-4 left-4 bg-black/25 backdrop-blur-md border border-white/10 rounded-3xl p-2.5 grid grid-cols-2 gap-2 shadow-lg w-18 h-18 items-center justify-items-center">
+      return isIntegrated ? (
+        <div className="absolute top-4 left-4 grid grid-cols-2 gap-2 z-10">
+          <div className={`${lensStyle} ring-2 ring-white/10`}><div className={lensGlassStyle} /></div>
+          <div className={`${lensStyle} ring-2 ring-white/10`}><div className={lensGlassStyle} /></div>
+          <div className={flashStyle} />
+          <div className={`${lensStyle} ring-2 ring-white/10`}><div className={lensGlassStyle} /></div>
+        </div>
+      ) : (
+        <div className={`${containerStyle} ${shape !== 'Square' ? 'grid grid-cols-2 gap-2 w-16 h-16 items-center justify-items-center rounded-2xl' : ''}`}>
           <div className={lensStyle}>
             <div className={lensGlassStyle} />
           </div>
@@ -215,8 +403,14 @@ const renderCameraModule = (layout: string, _color: string, _finish: string) => 
       );
     case 'Circular':
     default:
-      return (
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-black/35 backdrop-blur-md border border-white/15 rounded-full p-3.5 flex items-center justify-center shadow-2xl w-22 h-22">
+      return isIntegrated ? (
+        <div className="absolute top-4 left-4 flex gap-1.5 items-center z-10">
+          <div className={`${lensStyle} ring-2 ring-white/10`}><div className={lensGlassStyle} /></div>
+          <div className={`${lensStyle} ring-2 ring-white/10`}><div className={lensGlassStyle} /></div>
+          <div className={`${lensStyle} ring-2 ring-white/10`}><div className={lensGlassStyle} /></div>
+        </div>
+      ) : (
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-black/35 backdrop-blur-md border border-white/15 rounded-full p-3.5 flex items-center justify-center shadow-2xl w-22 h-22 z-10">
           <div className="w-full h-full rounded-full border border-white/10 relative flex items-center justify-center bg-zinc-900/60">
             <div className={`${lensStyle} absolute top-1 left-1/2 -translate-x-1/2 w-4 h-4`}>
               <div className={lensGlassStyle} />
@@ -285,6 +479,18 @@ function PhoneMockup({
   boxColor,
   boxTextColor,
   boxStyle,
+  notchStyle,
+  screenCurvature,
+  buttonColor,
+  buttonStyle,
+  bezelSize,
+  strapType,
+  strapColor,
+  backlightColor,
+  smartwatchShape,
+  logoGlow,
+  cameraShape,
+  buttonPlacement,
 }: {
   category: DeviceCategory;
   placedComponents: Partial<Record<ComponentSlot, string>>;
@@ -299,6 +505,18 @@ function PhoneMockup({
   boxColor: string;
   boxTextColor: string;
   boxStyle: string;
+  notchStyle: string;
+  screenCurvature: string;
+  buttonColor: string;
+  buttonStyle: string;
+  bezelSize: string;
+  strapType: string;
+  strapColor: string;
+  backlightColor: string;
+  smartwatchShape: string;
+  logoGlow: string;
+  cameraShape: string;
+  buttonPlacement: string;
 }) {
   const [viewMode, setViewMode] = useState<'front' | 'back' | 'box'>('front');
   const [dragOverSlot, setDragOverSlot] = useState<ComponentSlot | null>(null);
@@ -326,6 +544,163 @@ function PhoneMockup({
     (stats.performance + stats.display + stats.camera + stats.battery + stats.build + stats.appeal) / 6,
   );
 
+const getLogoGlowStyle = (glow: string, accentColor: string) => {
+  const baseShadow = 'drop-shadow(0px 2px 4px rgba(0,0,0,0.4))';
+  switch (glow) {
+    case 'White':
+      return `${baseShadow} drop-shadow(0 0 12px rgba(255,255,255,0.85))`;
+    case 'Accent':
+      return `${baseShadow} drop-shadow(0 0 12px ${accentColor})`;
+    case 'Rainbow':
+      return `${baseShadow} drop-shadow(0 0 8px #f43f5e) drop-shadow(0 0 12px #3b82f6) drop-shadow(0 0 15px #10b981)`;
+    case 'None':
+    default:
+      return baseShadow;
+  }
+};
+
+  const getBezelPadding = (size: string, cat: string) => {
+    const isWatch = cat === 'smartwatch';
+    const isRound = isWatch && smartwatchShape === 'Round';
+    if (isRound) {
+      switch (size) {
+        case 'Bezel-less': return 'p-[4px] rounded-full aspect-square';
+        case 'Thin': return 'p-[12px] rounded-full aspect-square';
+        case 'Standard': return 'p-[20px] rounded-full aspect-square';
+        case 'Thick': return 'p-[32px] rounded-full aspect-square';
+        default: return 'p-[20px] rounded-full aspect-square';
+      }
+    }
+    switch (size) {
+      case 'Bezel-less': return `p-[2px] ${isWatch ? 'rounded-[3.8rem]' : 'rounded-[2.3rem]'}`;
+      case 'Thin': return `p-[6px] ${isWatch ? 'rounded-[3.6rem]' : 'rounded-[2.1rem]'}`;
+      case 'Standard': return `p-[10px] ${isWatch ? 'rounded-[3.3rem]' : 'rounded-[2rem]'}`;
+      case 'Thick': return `p-[15px] ${isWatch ? 'rounded-[3.0rem]' : 'rounded-[1.8rem]'}`;
+      default: return `p-[10px] ${isWatch ? 'rounded-[3.3rem]' : 'rounded-[2rem]'}`;
+    }
+  };
+
+  const getScreenRounding = (size: string, cat: string) => {
+    const isWatch = cat === 'smartwatch';
+    const isRound = isWatch && smartwatchShape === 'Round';
+    if (isRound) return 'rounded-full aspect-square';
+    switch (size) {
+      case 'Bezel-less': return isWatch ? 'rounded-[3.7rem]' : 'rounded-[2.2rem]';
+      case 'Thin': return isWatch ? 'rounded-[3.5rem]' : 'rounded-[2.0rem]';
+      case 'Standard': return isWatch ? 'rounded-[3.1rem]' : 'rounded-[1.8rem]';
+      case 'Thick': return isWatch ? 'rounded-[2.6rem]' : 'rounded-[1.5rem]';
+      default: return isWatch ? 'rounded-[3.1rem]' : 'rounded-[1.8rem]';
+    }
+  };
+
+  const bezelPaddingClass = getBezelPadding(bezelSize, category);
+  const screenRoundingClass = getScreenRounding(bezelSize, category);
+
+  const isCircularWatch = category === 'smartwatch' && smartwatchShape === 'Round';
+
+  const frameRounded = isCircularWatch
+    ? 'rounded-full aspect-square'
+    : category === 'smartwatch'
+      ? 'rounded-[4rem]'
+      : 'rounded-[2.8rem]';
+
+  const bezelRounded = isCircularWatch
+    ? 'rounded-full aspect-square'
+    : category === 'smartwatch'
+      ? 'rounded-[3.5rem]'
+      : 'rounded-[2rem]';
+
+  const frameAspectClass = category === 'smartwatch' ? 'w-56 h-56 sm:w-64 sm:h-64 flex flex-col justify-center' : '';
+  const screenMinHeightClass = category === 'smartwatch' ? 'min-h-[12rem] aspect-square flex flex-col justify-center py-2' : 'min-h-[28rem] px-3 pb-4 pt-2';
+
+  const powerBtnColor = buttonStyle === 'Accent' ? '#f97316' : buttonColor;
+
+  let powerBtnStyleClass = '';
+  let volUpBtnStyleClass = '';
+  let volDownBtnStyleClass = '';
+
+  let powerBtnStyle: React.CSSProperties = {};
+  let volUpBtnStyle: React.CSSProperties = {};
+  let volDownBtnStyle: React.CSSProperties = {};
+
+  if (buttonPlacement === 'Left Side') {
+    powerBtnStyleClass = `absolute left-[-6px] top-28 w-1.5 h-8 transition-all shadow-md z-10`;
+    powerBtnStyle = {
+      backgroundColor: powerBtnColor,
+      borderRadius: buttonStyle === 'Pill' ? '9999px 0 0 9999px' : '3px 0 0 3px',
+      borderLeft: 'none'
+    };
+    volUpBtnStyleClass = `absolute right-[-6px] top-24 w-1.5 h-6 transition-all shadow-md z-10`;
+    volUpBtnStyle = {
+      backgroundColor: buttonColor,
+      borderRadius: buttonStyle === 'Pill' ? '0 9999px 9999px 0' : '0 3px 3px 0',
+      borderRight: 'none'
+    };
+    volDownBtnStyleClass = `absolute right-[-6px] top-32 w-1.5 h-6 transition-all shadow-md z-10`;
+    volDownBtnStyle = {
+      backgroundColor: buttonColor,
+      borderRadius: buttonStyle === 'Pill' ? '0 9999px 9999px 0' : '0 3px 3px 0',
+      borderRight: 'none'
+    };
+  } else if (buttonPlacement === 'Both Sides') {
+    powerBtnStyleClass = `absolute right-[-6px] top-28 w-1.5 h-8 transition-all shadow-md z-10`;
+    powerBtnStyle = {
+      backgroundColor: powerBtnColor,
+      borderRadius: buttonStyle === 'Pill' ? '0 9999px 9999px 0' : '0 3px 3px 0',
+      borderRight: 'none'
+    };
+    volUpBtnStyleClass = `absolute left-[-6px] top-24 w-1.5 h-6 transition-all shadow-md z-10`;
+    volUpBtnStyle = {
+      backgroundColor: buttonColor,
+      borderRadius: buttonStyle === 'Pill' ? '9999px 0 0 9999px' : '3px 0 0 3px',
+      borderLeft: 'none'
+    };
+    volDownBtnStyleClass = `absolute left-[-6px] top-32 w-1.5 h-6 transition-all shadow-md z-10`;
+    volDownBtnStyle = {
+      backgroundColor: buttonColor,
+      borderRadius: buttonStyle === 'Pill' ? '9999px 0 0 9999px' : '3px 0 0 3px',
+      borderLeft: 'none'
+    };
+  } else if (buttonPlacement === 'Top Edge') {
+    powerBtnStyleClass = `absolute top-[-6px] left-12 w-8 h-1.5 transition-all shadow-md z-10`;
+    powerBtnStyle = {
+      backgroundColor: powerBtnColor,
+      borderRadius: buttonStyle === 'Pill' ? '9999px 9999px 0 0' : '3px 3px 0 0',
+      borderTop: 'none'
+    };
+    volUpBtnStyleClass = `absolute top-[-6px] right-20 w-6 h-1.5 transition-all shadow-md z-10`;
+    volUpBtnStyle = {
+      backgroundColor: buttonColor,
+      borderRadius: buttonStyle === 'Pill' ? '9999px 9999px 0 0' : '3px 3px 0 0',
+      borderTop: 'none'
+    };
+    volDownBtnStyleClass = `absolute top-[-6px] right-12 w-6 h-1.5 transition-all shadow-md z-10`;
+    volDownBtnStyle = {
+      backgroundColor: buttonColor,
+      borderRadius: buttonStyle === 'Pill' ? '9999px 9999px 0 0' : '3px 3px 0 0',
+      borderTop: 'none'
+    };
+  } else {
+    powerBtnStyleClass = `absolute right-[-6px] top-28 w-1.5 h-8 transition-all shadow-md z-10`;
+    powerBtnStyle = {
+      backgroundColor: powerBtnColor,
+      borderRadius: buttonStyle === 'Pill' ? '0 9999px 9999px 0' : '0 3px 3px 0',
+      borderRight: 'none'
+    };
+    volUpBtnStyleClass = `absolute left-[-6px] top-24 w-1.5 h-6 transition-all shadow-md z-10`;
+    volUpBtnStyle = {
+      backgroundColor: buttonColor,
+      borderRadius: buttonStyle === 'Pill' ? '9999px 0 0 9999px' : '3px 0 0 3px',
+      borderLeft: 'none'
+    };
+    volDownBtnStyleClass = `absolute left-[-6px] top-32 w-1.5 h-6 transition-all shadow-md z-10`;
+    volDownBtnStyle = {
+      backgroundColor: buttonColor,
+      borderRadius: buttonStyle === 'Pill' ? '9999px 0 0 9999px' : '3px 0 0 3px',
+      borderLeft: 'none'
+    };
+  }
+
   return (
     <div className="relative mx-auto w-56 sm:w-64">
       {/* View Selector Tabs */}
@@ -351,20 +726,49 @@ function PhoneMockup({
         ))}
       </div>
 
+      {/* Side Buttons */}
+      {viewMode !== 'box' && (
+        <>
+          <div
+            className={powerBtnStyleClass}
+            style={powerBtnStyle}
+          />
+          <div
+            className={volUpBtnStyleClass}
+            style={volUpBtnStyle}
+          />
+          <div
+            className={volDownBtnStyleClass}
+            style={volDownBtnStyle}
+          />
+        </>
+      )}
+
+      {/* Smartwatch Straps background */}
+      {viewMode !== 'box' && category === 'smartwatch' && renderWatchStraps(strapType, strapColor)}
+
+      {/* Laptop Keyboard deck background */}
+      {viewMode !== 'box' && category === 'laptop' && renderLaptopDeck(backlightColor)}
+
       {/* Phone Frame */}
-      <div className="relative rounded-[2.8rem] border-[3px] border-border-bright/40 bg-gradient-to-b from-[#1a1f2e] via-[#0f1219] to-[#0a0d12] p-[10px] shadow-[0_20px_60px_rgba(0,0,0,0.6),0_0_0_1px_rgba(255,255,255,0.03)_inset]">
+      <div className={`relative ${frameRounded} ${frameAspectClass} border-[3px] border-border-bright/40 bg-gradient-to-b from-[#1a1f2e] via-[#0f1219] to-[#0a0d12] p-[10px] shadow-[0_20px_60px_rgba(0,0,0,0.6),0_0_0_1px_rgba(255,255,255,0.03)_inset] transition-all duration-300`}>
         {/* Screen Bezel / Device Back / Retail Box */}
-        <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-b from-surface to-[#06080c]">
+        <div className={`relative overflow-hidden bg-gradient-to-b from-surface to-[#06080c] transition-all duration-300 ${bezelRounded}`}>
           {viewMode === 'front' && (
-            <>
+            <div className={`transition-all duration-300 ${bezelPaddingClass}`}>
               {/* Notch */}
-              <div className="relative z-10 flex items-center justify-center bg-black/40 py-1.5 backdrop-blur-sm">
-                <div className="h-1 w-10 rounded-full bg-border-bright/50" />
-                <div className="ml-2 h-1 w-1 rounded-full bg-border-bright/40" />
-              </div>
+              {renderNotch(notchStyle)}
+
+              {/* Curved screen reflection edges */}
+              {screenCurvature === 'Curved' && (
+                <>
+                  <div className="absolute inset-y-0 left-0 w-2 bg-gradient-to-r from-white/10 to-transparent pointer-events-none z-20" />
+                  <div className="absolute inset-y-0 right-0 w-2 bg-gradient-to-l from-white/10 to-transparent pointer-events-none z-20" />
+                </>
+              )}
 
               {/* Screen Content */}
-              <div className="relative min-h-[28rem] px-3 pb-4 pt-2">
+              <div className={`relative ${screenMinHeightClass} transition-all duration-300 ${screenRoundingClass}`}>
                 {/* Status Bar */}
                 <div className="mb-3 flex items-center justify-between px-1 text-[9px] text-muted/70">
                   <span className="font-mono">9:41</span>
@@ -459,23 +863,23 @@ function PhoneMockup({
                   <div className="h-1 w-20 rounded-full bg-white/10" />
                 </div>
               </div>
-            </>
+            </div>
           )}
 
           {viewMode === 'back' && (
             <div
-              className="relative flex flex-col justify-between p-6 min-h-[28rem] rounded-[2rem] overflow-hidden"
+              className={`relative flex flex-col justify-between p-6 ${screenMinHeightClass} ${bezelRounded} overflow-hidden`}
               style={getFinishStyles(bodyColor, frameStyle)}
             >
               {/* Camera module */}
-              {renderCameraModule(cameraLayout, bodyColor, frameStyle)}
+              {renderCameraModule(cameraLayout, cameraShape)}
 
               {/* Brand Logo in the center */}
               <div className="flex-1 flex items-center justify-center pt-10">
                 <div
                   className="text-5xl opacity-85 select-none transform transition-transform duration-300 hover:scale-110"
                   style={{
-                    filter: 'drop-shadow(0px 2px 4px rgba(0,0,0,0.4))'
+                    filter: getLogoGlowStyle(logoGlow, bodyColor)
                   }}
                 >
                   {LOGO_MAP[logoIcon] || '🟢'}
@@ -492,7 +896,7 @@ function PhoneMockup({
 
           {viewMode === 'box' && (
             <div
-              className="relative flex flex-col justify-between min-h-[28rem] rounded-[2rem] overflow-hidden border border-white/10 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.1)] transition-transform duration-300 hover:scale-[1.01]"
+              className={`relative flex flex-col justify-between ${screenMinHeightClass} ${bezelRounded} overflow-hidden border border-white/10 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.1)] transition-transform duration-300 hover:scale-[1.01]`}
               style={{
                 backgroundColor: boxColor,
               }}
@@ -601,7 +1005,7 @@ export function Designer() {
 
   const [sidebarTab, setSidebarTab] = useState<'components' | 'aesthetics'>('components');
   const [openCategory, setOpenCategory] = useState<ComponentSlot>('screen');
-  const [openAestheticSection, setOpenAestheticSection] = useState<'body' | 'camera' | 'box'>('body');
+  const [openAestheticSection, setOpenAestheticSection] = useState<'body' | 'camera' | 'hardware' | 'box'>('body');
   const [isReleasing, setIsReleasing] = useState(false);
 
   const {
@@ -611,7 +1015,19 @@ export function Designer() {
     cameraLayout = 'Single Lens',
     boxColor = '#0f172a',
     boxTextColor = '#f8fafc',
-    boxStyle = 'Minimalist'
+    boxStyle = 'Minimalist',
+    notchStyle = 'Punch Hole',
+    screenCurvature = 'Flat',
+    buttonColor = '#475569',
+    buttonStyle = 'Classic',
+    bezelSize = 'Thin',
+    strapType = 'Sport',
+    strapColor = '#1c1c1e',
+    backlightColor = '#06b6d4',
+    smartwatchShape = 'Square',
+    logoGlow = 'None',
+    cameraShape = 'Integrated',
+    buttonPlacement = 'Right Side',
   } = draft;
 
   const updateAesthetics = useCallback((updates: Partial<DraftDesign>) => {
@@ -763,19 +1179,19 @@ export function Designer() {
                   {/* Finish Material */}
                   <div className="space-y-1">
                     <label className="text-[10px] text-muted uppercase tracking-wider font-bold">Finish Material</label>
-                    <div className="grid grid-cols-3 gap-1">
+                    <div className="grid grid-cols-2 gap-1">
                       {FINISH_OPTIONS.map((f) => (
                         <button
                           key={f}
                           type="button"
                           onClick={() => updateAesthetics({ frameStyle: f })}
-                          className={`py-1.5 px-0.5 text-[9px] font-bold rounded-lg border transition-all ${
+                          className={`py-1.5 px-1.5 text-[9px] font-semibold rounded-lg border transition-all text-left ${
                             frameStyle === f
                               ? 'bg-accent/20 border-accent/50 text-accent-soft shadow-sm'
                               : 'border-border/40 hover:border-border-bright/60 hover:bg-white/[0.02] text-muted'
                           }`}
                         >
-                          {f.split(' ')[0]}
+                          {f}
                         </button>
                       ))}
                     </div>
@@ -890,6 +1306,353 @@ export function Designer() {
                       ))}
                     </div>
                   </div>
+
+                  {/* Camera Bump Shape */}
+                  <div className="space-y-1">
+                    <label className="text-[10px] text-muted uppercase tracking-wider font-bold">Camera Bump Shape</label>
+                    <div className="grid grid-cols-2 gap-1">
+                      {CAMERA_SHAPES.map((shape) => (
+                        <button
+                          key={shape}
+                          type="button"
+                          onClick={() => updateAesthetics({ cameraShape: shape })}
+                          className={`py-1.5 px-1.5 text-[10px] font-semibold rounded-lg border transition-all text-left ${
+                            cameraShape === shape
+                              ? 'bg-accent/20 border-accent/50 text-accent-soft'
+                              : 'border-border/40 hover:border-border-bright/60 hover:bg-white/[0.02] text-muted'
+                          }`}
+                        >
+                          {shape}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Brand Logo Glow */}
+                  <div className="space-y-1">
+                    <label className="text-[10px] text-muted uppercase tracking-wider font-bold">Logo Glow Effect</label>
+                    <div className="grid grid-cols-2 gap-1">
+                      {LOGO_GLOW_OPTIONS.map((glow) => (
+                        <button
+                          key={glow}
+                          type="button"
+                          onClick={() => updateAesthetics({ logoGlow: glow })}
+                          className={`py-1.5 px-1.5 text-[10px] font-semibold rounded-lg border transition-all text-left ${
+                            logoGlow === glow
+                              ? 'bg-accent/20 border-accent/50 text-accent-soft'
+                              : 'border-border/40 hover:border-border-bright/60 hover:bg-white/[0.02] text-muted'
+                          }`}
+                        >
+                          {glow}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Display & Hardware Section */}
+            <div className="overflow-hidden rounded-xl border border-border/50 bg-surface-raised/40">
+              <button
+                type="button"
+                onClick={() => setOpenAestheticSection(openAestheticSection === 'hardware' ? '' as any : 'hardware')}
+                className={`flex w-full items-center gap-3 px-3 py-3 text-left transition-all ${
+                  openAestheticSection === 'hardware'
+                    ? 'bg-surface-hover/60 border-b border-border/40'
+                    : 'hover:bg-surface-hover/40'
+                }`}
+              >
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-teal-500 to-cyan-500 text-sm shadow-lg">⚙️</span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-fg">Display & Hardware</p>
+                  <p className="text-[10px] text-muted/60">Bezel, notch, buttons spec</p>
+                </div>
+                <span className={`text-xs transition-transform duration-200 ${openAestheticSection === 'hardware' ? 'rotate-180' : ''}`}>▾</span>
+              </button>
+              {openAestheticSection === 'hardware' && (
+                <div className="space-y-4 p-3 bg-surface-raised/20">
+                  {/* Notch Style (Only smartphones / tablets) */}
+                  {(draft.category === 'smartphone' || draft.category === 'tablet') && (
+                    <div className="space-y-1">
+                      <label className="text-[10px] text-muted uppercase tracking-wider font-bold">Notch Style</label>
+                      <div className="grid grid-cols-2 gap-1">
+                        {NOTCH_STYLES.map((n) => (
+                          <button
+                            key={n}
+                            type="button"
+                            onClick={() => updateAesthetics({ notchStyle: n })}
+                            className={`py-1.5 px-1.5 text-[10px] font-semibold rounded-lg border transition-all text-left ${
+                              notchStyle === n
+                                ? 'bg-accent/20 border-accent/50 text-accent-soft'
+                                : 'border-border/40 hover:border-border-bright/60 hover:bg-white/[0.02] text-muted'
+                            }`}
+                          >
+                            {n}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Screen Curvature */}
+                  <div className="space-y-1">
+                    <label className="text-[10px] text-muted uppercase tracking-wider font-bold">Screen Glass Curvature</label>
+                    <div className="grid grid-cols-2 gap-1">
+                      {CURVATURE_OPTIONS.map((c) => (
+                        <button
+                          key={c}
+                          type="button"
+                          onClick={() => updateAesthetics({ screenCurvature: c })}
+                          className={`py-1.5 px-1.5 text-[10px] font-semibold rounded-lg border transition-all text-left ${
+                            screenCurvature === c
+                              ? 'bg-accent/20 border-accent/50 text-accent-soft'
+                              : 'border-border/40 hover:border-border-bright/60 hover:bg-white/[0.02] text-muted'
+                          }`}
+                        >
+                          {c}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Bezel Thickness */}
+                  <div className="space-y-1">
+                    <label className="text-[10px] text-muted uppercase tracking-wider font-bold">Bezel Thickness</label>
+                    <div className="grid grid-cols-2 gap-1">
+                      {BEZEL_SIZES.map((b) => (
+                        <button
+                          key={b}
+                          type="button"
+                          onClick={() => updateAesthetics({ bezelSize: b })}
+                          className={`py-1.5 px-1.5 text-[10px] font-semibold rounded-lg border transition-all text-left ${
+                            bezelSize === b
+                              ? 'bg-accent/20 border-accent/50 text-accent-soft'
+                              : 'border-border/40 hover:border-border-bright/60 hover:bg-white/[0.02] text-muted'
+                          }`}
+                        >
+                          {b}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Physical Buttons Style */}
+                  <div className="space-y-1">
+                    <label className="text-[10px] text-muted uppercase tracking-wider font-bold">Side Button Style</label>
+                    <div className="grid grid-cols-3 gap-1">
+                      {BUTTON_STYLES.map((b) => (
+                        <button
+                          key={b}
+                          type="button"
+                          onClick={() => updateAesthetics({ buttonStyle: b })}
+                          className={`py-1.5 px-0.5 text-[9px] font-bold rounded-lg border transition-all ${
+                            buttonStyle === b
+                              ? 'bg-accent/20 border-accent/50 text-accent-soft'
+                              : 'border-border/40 hover:border-border-bright/60 hover:bg-white/[0.02] text-muted'
+                          }`}
+                        >
+                          {b}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Button Color Preset */}
+                  <div className="space-y-1">
+                    <label className="text-[10px] text-muted uppercase tracking-wider font-bold">Button Color Presets</label>
+                    <div className="grid grid-cols-5 gap-1.5">
+                      {COLOR_PRESETS.map((c) => (
+                        <button
+                          key={c.name}
+                          type="button"
+                          onClick={() => updateAesthetics({ buttonColor: c.hex })}
+                          className={`w-9 h-9 rounded-full border-2 transition-all flex items-center justify-center ${
+                            buttonColor.toLowerCase() === c.hex.toLowerCase()
+                              ? 'border-accent scale-105 shadow-md shadow-accent/20'
+                              : 'border-white/10 hover:scale-105'
+                          }`}
+                          style={{ backgroundColor: c.hex }}
+                          title={c.name}
+                        >
+                          {buttonColor.toLowerCase() === c.hex.toLowerCase() && (
+                            <span className="text-white text-[10px] font-bold drop-shadow-md">✓</span>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="flex items-center justify-between border-t border-border/10 pt-2 mt-2">
+                      <span className="text-[9px] text-muted uppercase tracking-wider font-bold">Custom Button Color</span>
+                      <div className="flex items-center gap-1.5">
+                        <input
+                          type="text"
+                          value={buttonColor}
+                          onChange={(e) => updateAesthetics({ buttonColor: e.target.value })}
+                          className="w-16 bg-surface-raised border border-border/40 px-1.5 py-0.5 rounded text-[11px] font-mono outline-none focus:border-accent text-fg"
+                        />
+                        <input
+                          type="color"
+                          value={buttonColor.startsWith('#') && buttonColor.length === 7 ? buttonColor : '#475569'}
+                          onChange={(e) => updateAesthetics({ buttonColor: e.target.value })}
+                          className="w-6 h-6 rounded border border-border/40 cursor-pointer bg-transparent"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Button Placement */}
+                  <div className="space-y-1">
+                    <label className="text-[10px] text-muted uppercase tracking-wider font-bold">Button Placement</label>
+                    <div className="grid grid-cols-2 gap-1">
+                      {BUTTON_PLACEMENTS.map((placement) => (
+                        <button
+                          key={placement}
+                          type="button"
+                          onClick={() => updateAesthetics({ buttonPlacement: placement })}
+                          className={`py-1.5 px-0.5 text-[9px] font-bold rounded-lg border transition-all ${
+                            buttonPlacement === placement
+                              ? 'bg-accent/20 border-accent/50 text-accent-soft'
+                              : 'border-border/40 hover:border-border-bright/60 hover:bg-white/[0.02] text-muted'
+                          }`}
+                        >
+                          {placement}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Smartwatch Face Shape */}
+                  {draft.category === 'smartwatch' && (
+                    <div className="space-y-1 border-t border-border/10 pt-3">
+                      <label className="text-[10px] text-muted uppercase tracking-wider font-bold">Watch Face Shape</label>
+                      <div className="grid grid-cols-2 gap-1">
+                        {SMARTWATCH_SHAPES.map((shape) => (
+                          <button
+                            key={shape}
+                            type="button"
+                            onClick={() => updateAesthetics({ smartwatchShape: shape })}
+                            className={`py-1.5 px-0.5 text-[9px] font-bold rounded-lg border transition-all ${
+                              smartwatchShape === shape
+                                ? 'bg-accent/20 border-accent/50 text-accent-soft'
+                                : 'border-border/40 hover:border-border-bright/60 hover:bg-white/[0.02] text-muted'
+                            }`}
+                          >
+                            {shape}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Smartwatch Straps Type (Only smartwatch) */}
+                  {draft.category === 'smartwatch' && (
+                    <>
+                      <div className="space-y-1 border-t border-border/10 pt-3">
+                        <label className="text-[10px] text-muted uppercase tracking-wider font-bold">Watch Strap Type</label>
+                        <div className="grid grid-cols-3 gap-1">
+                          {STRAP_TYPES.map((s) => (
+                            <button
+                              key={s}
+                              type="button"
+                              onClick={() => updateAesthetics({ strapType: s })}
+                              className={`py-1.5 px-0.5 text-[9px] font-bold rounded-lg border transition-all ${
+                                strapType === s
+                                  ? 'bg-accent/20 border-accent/50 text-accent-soft'
+                                  : 'border-border/40 hover:border-border-bright/60 hover:bg-white/[0.02] text-muted'
+                              }`}
+                            >
+                              {s}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-[10px] text-muted uppercase tracking-wider font-bold">Strap Color Presets</label>
+                        <div className="grid grid-cols-5 gap-1.5">
+                          {STRAP_COLOR_PRESETS.map((c) => (
+                            <button
+                              key={c.name}
+                              type="button"
+                              onClick={() => updateAesthetics({ strapColor: c.hex })}
+                              className={`w-9 h-9 rounded-full border-2 transition-all flex items-center justify-center ${
+                                strapColor.toLowerCase() === c.hex.toLowerCase()
+                                  ? 'border-accent scale-105 shadow-md shadow-accent/20'
+                                  : 'border-white/10 hover:scale-105'
+                              }`}
+                              style={{ backgroundColor: c.hex }}
+                              title={c.name}
+                            >
+                              {strapColor.toLowerCase() === c.hex.toLowerCase() && (
+                                <span className="text-white text-[10px] font-bold drop-shadow-md">✓</span>
+                              )}
+                            </button>
+                          ))}
+                        </div>
+                        <div className="flex items-center justify-between border-t border-border/10 pt-2 mt-2">
+                          <span className="text-[9px] text-muted uppercase tracking-wider font-bold">Custom Strap Color</span>
+                          <div className="flex items-center gap-1.5">
+                            <input
+                              type="text"
+                              value={strapColor}
+                              onChange={(e) => updateAesthetics({ strapColor: e.target.value })}
+                              className="w-16 bg-surface-raised border border-border/40 px-1.5 py-0.5 rounded text-[11px] font-mono outline-none focus:border-accent text-fg"
+                            />
+                            <input
+                              type="color"
+                              value={strapColor.startsWith('#') && strapColor.length === 7 ? strapColor : '#1c1c1e'}
+                              onChange={(e) => updateAesthetics({ strapColor: e.target.value })}
+                              className="w-6 h-6 rounded border border-border/40 cursor-pointer bg-transparent"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  {/* Laptop Keyboard Backlight (Only laptop) */}
+                  {draft.category === 'laptop' && (
+                    <div className="space-y-1 border-t border-border/10 pt-3">
+                      <label className="text-[10px] text-muted uppercase tracking-wider font-bold">Keyboard Backlight Color</label>
+                      <div className="grid grid-cols-5 gap-1.5">
+                        {BACKLIGHT_PRESETS.map((c) => (
+                          <button
+                            key={c.name}
+                            type="button"
+                            onClick={() => updateAesthetics({ backlightColor: c.hex })}
+                            className={`w-9 h-9 rounded-full border-2 transition-all flex items-center justify-center ${
+                              backlightColor.toLowerCase() === c.hex.toLowerCase()
+                                ? 'border-accent scale-105 shadow-md shadow-accent/20'
+                                : 'border-white/10 hover:scale-105'
+                            }`}
+                            style={{ backgroundColor: c.hex }}
+                            title={c.name}
+                          >
+                            {backlightColor.toLowerCase() === c.hex.toLowerCase() && (
+                              <span className="text-white text-[10px] font-bold drop-shadow-md">✓</span>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                      <div className="flex items-center justify-between border-t border-border/10 pt-2 mt-2">
+                        <span className="text-[9px] text-muted uppercase tracking-wider font-bold">Custom Backlight</span>
+                        <div className="flex items-center gap-1.5">
+                          <input
+                            type="text"
+                            value={backlightColor}
+                            onChange={(e) => updateAesthetics({ backlightColor: e.target.value })}
+                            className="w-16 bg-surface-raised border border-border/40 px-1.5 py-0.5 rounded text-[11px] font-mono outline-none focus:border-accent text-fg"
+                          />
+                          <input
+                            type="color"
+                            value={backlightColor.startsWith('#') && backlightColor.length === 7 ? backlightColor : '#06b6d4'}
+                            onChange={(e) => updateAesthetics({ backlightColor: e.target.value })}
+                            className="w-6 h-6 rounded border border-border/40 cursor-pointer bg-transparent"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -1075,6 +1838,18 @@ export function Designer() {
               boxColor={boxColor}
               boxTextColor={boxTextColor}
               boxStyle={boxStyle}
+              notchStyle={notchStyle}
+              screenCurvature={screenCurvature}
+              buttonColor={buttonColor}
+              buttonStyle={buttonStyle}
+              bezelSize={bezelSize}
+              strapType={strapType}
+              strapColor={strapColor}
+              backlightColor={backlightColor}
+              smartwatchShape={smartwatchShape}
+              logoGlow={logoGlow}
+              cameraShape={cameraShape}
+              buttonPlacement={buttonPlacement}
             />
           </div>
         </Card>
