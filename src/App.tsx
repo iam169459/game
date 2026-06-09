@@ -4,8 +4,8 @@ import { TopBar } from './components/layout/TopBar';
 import { BottomNav } from './components/layout/BottomNav';
 import { useStoreHydration } from './hooks/useStoreHydration';
 import { AccessLogin } from './screens/AccessLogin';
-import { DevicesTab } from './screens/DevicesTab';
-import { BlueprintsTab } from './screens/BlueprintsTab';
+import { Market } from './screens/Market';
+import { Designer } from './screens/Designer';
 import { FactoryTab } from './screens/FactoryTab';
 import { StoresTab } from './screens/StoresTab';
 import { EmployeesTab } from './screens/EmployeesTab';
@@ -23,8 +23,8 @@ import { Research } from './screens/Research';
 import { BankruptcyScreen } from './components/BankruptcyScreen';
 
 const TABS: Record<TabId, React.ComponentType> = {
-  devices:      DevicesTab,
-  blueprints:   BlueprintsTab,
+  devices:      Market,
+  blueprints:   Designer,
   lab:          Lab,
   research:     Research,
   factory:      FactoryTab,
@@ -115,12 +115,20 @@ export default function App() {
   const activeTab: TabId = isTab(screen) ? screen : 'devices';
   const Tab = TABS[activeTab];
 
+  const isDesigner = activeTab === 'blueprints' && screen !== 'settings';
+
   return (
     <div className="flex h-[100dvh] flex-col overflow-hidden bg-game">
       <TopBar />
-      <main className="flex-1 overflow-y-auto px-4 pt-3 pb-24">
-        {screen === 'settings' ? <Settings /> : <Tab />}
-      </main>
+      {isDesigner ? (
+        <main className="flex-1 overflow-hidden px-4 pt-3 pb-24 flex flex-col min-h-0">
+          <Tab />
+        </main>
+      ) : (
+        <main className="flex-1 overflow-y-auto px-4 pt-3 pb-24">
+          {screen === 'settings' ? <Settings /> : <Tab />}
+        </main>
+      )}
       <BottomNav />
       <QuarterlyReportModal />
       <DeviceReviewModal />

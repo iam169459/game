@@ -224,23 +224,54 @@ const renderWatchStraps = (type: string, color: string) => {
   );
 };
 
-const renderLaptopDeck = (backlightColor: string) => {
+const renderLaptopDeck = (backlightColor: string, bodyColor: string) => {
   return (
     <div
-      className="absolute bottom-[-16px] left-1/2 -translate-x-1/2 w-72 h-8 bg-zinc-800 rounded-b-md border-t border-zinc-700/60 shadow-2xl flex flex-col justify-end p-1 z-[-1]"
+      className="absolute bottom-[-20px] left-1/2 -translate-x-1/2 w-[95%] h-8 bg-zinc-800 rounded-b-md border-t border-zinc-700/60 shadow-2xl flex flex-col justify-between p-1 z-[-1]"
       style={{
+        backgroundColor: bodyColor,
         boxShadow: `0 8px 25px rgba(0,0,0,0.8), 0 0 12px ${backlightColor}40`
       }}
     >
-      <div className="w-16 h-3 bg-zinc-900 rounded mx-auto border border-zinc-800/80 mb-0.5" />
-      <div className="flex justify-between px-4 gap-0.5">
-        {Array.from({ length: 14 }).map((_, i) => (
+      <div className="flex justify-between px-4 gap-0.5 mt-0.5">
+        {Array.from({ length: 18 }).map((_, i) => (
           <div
             key={i}
             className="h-1 flex-1 rounded-sm transition-all duration-300"
             style={{ backgroundColor: backlightColor, opacity: 0.6, boxShadow: `0 0 4px ${backlightColor}` }}
           />
         ))}
+      </div>
+      <div className="w-16 h-3.5 bg-zinc-950/60 rounded mx-auto border border-white/5 mb-0.5 shadow-inner" />
+    </div>
+  );
+};
+
+const renderTVStand = (color: string) => {
+  return (
+    <div className="absolute bottom-[-24px] left-1/2 -translate-x-1/2 flex flex-col items-center z-[-1]">
+      <div className="w-3.5 h-6 bg-zinc-700 border-x border-zinc-600/50 shadow-md" style={{ backgroundColor: color }} />
+      <div className="w-24 h-2.5 bg-zinc-800 rounded-full border border-zinc-700 shadow-lg" style={{ backgroundColor: color }} />
+    </div>
+  );
+};
+
+const renderEarbudsInside = () => {
+  return (
+    <div className="flex justify-around items-center gap-4 py-4 px-4 border-b border-white/5 bg-black/45 rounded-t-[2rem]">
+      {/* Left Earbud */}
+      <div className="w-11 h-11 rounded-full bg-zinc-950 border border-zinc-800 shadow-inner flex items-center justify-center relative">
+        <div className="w-7 h-7 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center shadow-md">
+          <div className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse" />
+        </div>
+        <div className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-amber-400 border border-amber-600" />
+      </div>
+      {/* Right Earbud */}
+      <div className="w-11 h-11 rounded-full bg-zinc-950 border border-zinc-800 shadow-inner flex items-center justify-center relative">
+        <div className="w-7 h-7 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center shadow-md">
+          <div className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse" />
+        </div>
+        <div className="absolute bottom-0 left-0 w-2.5 h-2.5 rounded-full bg-amber-400 border border-amber-600" />
       </div>
     </div>
   );
@@ -559,7 +590,69 @@ const getLogoGlowStyle = (glow: string, accentColor: string) => {
   }
 };
 
+  const isCircularWatch = category === 'smartwatch' && smartwatchShape === 'Round';
+
+  const getCategoryLayout = (cat: string) => {
+    let width = 'w-56 sm:w-64';
+    let minHeight = 'min-h-[28rem] px-3 pb-4 pt-2';
+    let aspect = '';
+    let frameR = 'rounded-[2.8rem]';
+    let bezelR = 'rounded-[2rem]';
+
+    switch (cat) {
+      case 'tablet':
+        width = 'w-72 sm:w-80';
+        minHeight = 'min-h-[32rem] px-4 pb-5 pt-3';
+        frameR = 'rounded-[3.2rem]';
+        bezelR = 'rounded-[2.4rem]';
+        break;
+      case 'smartwatch':
+        width = 'w-48 sm:w-52';
+        minHeight = 'min-h-[12rem] aspect-square flex flex-col justify-center py-2';
+        aspect = 'aspect-square';
+        if (isCircularWatch) {
+          frameR = 'rounded-full';
+          bezelR = 'rounded-full';
+        } else {
+          frameR = 'rounded-[3.5rem]';
+          bezelR = 'rounded-[2.8rem]';
+        }
+        break;
+      case 'laptop':
+        width = 'w-80 sm:w-[28rem]';
+        minHeight = 'min-h-[16rem] aspect-[16/10] flex flex-col justify-between py-2 px-3';
+        aspect = 'aspect-[16/10]';
+        frameR = 'rounded-xl';
+        bezelR = 'rounded-lg';
+        break;
+      case 'smarttv':
+        width = 'w-80 sm:w-[30rem]';
+        minHeight = 'min-h-[15rem] aspect-[16/9] flex flex-col justify-between py-2 px-3';
+        aspect = 'aspect-[16/9]';
+        frameR = 'rounded-sm';
+        bezelR = 'rounded-none';
+        break;
+      case 'earbuds':
+        width = 'w-48 sm:w-52';
+        minHeight = 'min-h-[14rem] aspect-[4/5] flex flex-col justify-center py-2 px-2';
+        aspect = 'aspect-[4/5]';
+        frameR = 'rounded-[3rem]';
+        bezelR = 'rounded-[2.5rem]';
+        break;
+      case 'smartphone':
+      default:
+        width = 'w-56 sm:w-64';
+        minHeight = 'min-h-[28rem] px-3 pb-4 pt-2';
+        frameR = 'rounded-[2.8rem]';
+        bezelR = 'rounded-[2rem]';
+        break;
+    }
+    return { width, minHeight, aspect, frameR, bezelR };
+  };
+
   const getBezelPadding = (size: string, cat: string) => {
+    if (cat === 'smarttv') return 'p-0.5';
+    if (cat === 'laptop') return 'p-1';
     const isWatch = cat === 'smartwatch';
     const isRound = isWatch && smartwatchShape === 'Round';
     if (isRound) {
@@ -581,6 +674,8 @@ const getLogoGlowStyle = (glow: string, accentColor: string) => {
   };
 
   const getScreenRounding = (size: string, cat: string) => {
+    if (cat === 'smarttv') return 'rounded-none';
+    if (cat === 'laptop') return 'rounded-sm';
     const isWatch = cat === 'smartwatch';
     const isRound = isWatch && smartwatchShape === 'Round';
     if (isRound) return 'rounded-full aspect-square';
@@ -596,22 +691,11 @@ const getLogoGlowStyle = (glow: string, accentColor: string) => {
   const bezelPaddingClass = getBezelPadding(bezelSize, category);
   const screenRoundingClass = getScreenRounding(bezelSize, category);
 
-  const isCircularWatch = category === 'smartwatch' && smartwatchShape === 'Round';
-
-  const frameRounded = isCircularWatch
-    ? 'rounded-full aspect-square'
-    : category === 'smartwatch'
-      ? 'rounded-[4rem]'
-      : 'rounded-[2.8rem]';
-
-  const bezelRounded = isCircularWatch
-    ? 'rounded-full aspect-square'
-    : category === 'smartwatch'
-      ? 'rounded-[3.5rem]'
-      : 'rounded-[2rem]';
-
-  const frameAspectClass = category === 'smartwatch' ? 'w-56 h-56 sm:w-64 sm:h-64 flex flex-col justify-center' : '';
-  const screenMinHeightClass = category === 'smartwatch' ? 'min-h-[12rem] aspect-square flex flex-col justify-center py-2' : 'min-h-[28rem] px-3 pb-4 pt-2';
+  const layoutStyle = getCategoryLayout(category);
+  const frameRounded = layoutStyle.frameR;
+  const bezelRounded = layoutStyle.bezelR;
+  const frameAspectClass = layoutStyle.aspect;
+  const screenMinHeightClass = layoutStyle.minHeight;
 
   const powerBtnColor = buttonStyle === 'Accent' ? '#f97316' : buttonColor;
 
@@ -623,82 +707,93 @@ const getLogoGlowStyle = (glow: string, accentColor: string) => {
   let volUpBtnStyle: React.CSSProperties = {};
   let volDownBtnStyle: React.CSSProperties = {};
 
-  if (buttonPlacement === 'Left Side') {
-    powerBtnStyleClass = `absolute left-[-6px] top-28 w-1.5 h-8 transition-all shadow-md z-10`;
+  const shouldRenderButtons = category === 'smartphone' || category === 'tablet' || category === 'smartwatch';
+
+  if (category === 'smartwatch') {
+    const side = buttonPlacement === 'Left Side' ? 'left' : 'right';
+    powerBtnStyleClass = `absolute ${side === 'left' ? 'left-[-6px]' : 'right-[-6px]'} top-1/2 -translate-y-1/2 w-2 h-5 transition-all shadow-md z-10`;
     powerBtnStyle = {
       backgroundColor: powerBtnColor,
-      borderRadius: buttonStyle === 'Pill' ? '9999px 0 0 9999px' : '3px 0 0 3px',
-      borderLeft: 'none'
+      borderRadius: side === 'left' ? '3px 0 0 3px' : '0 3px 3px 0',
     };
-    volUpBtnStyleClass = `absolute right-[-6px] top-24 w-1.5 h-6 transition-all shadow-md z-10`;
-    volUpBtnStyle = {
-      backgroundColor: buttonColor,
-      borderRadius: buttonStyle === 'Pill' ? '0 9999px 9999px 0' : '0 3px 3px 0',
-      borderRight: 'none'
-    };
-    volDownBtnStyleClass = `absolute right-[-6px] top-32 w-1.5 h-6 transition-all shadow-md z-10`;
-    volDownBtnStyle = {
-      backgroundColor: buttonColor,
-      borderRadius: buttonStyle === 'Pill' ? '0 9999px 9999px 0' : '0 3px 3px 0',
-      borderRight: 'none'
-    };
-  } else if (buttonPlacement === 'Both Sides') {
-    powerBtnStyleClass = `absolute right-[-6px] top-28 w-1.5 h-8 transition-all shadow-md z-10`;
-    powerBtnStyle = {
-      backgroundColor: powerBtnColor,
-      borderRadius: buttonStyle === 'Pill' ? '0 9999px 9999px 0' : '0 3px 3px 0',
-      borderRight: 'none'
-    };
-    volUpBtnStyleClass = `absolute left-[-6px] top-24 w-1.5 h-6 transition-all shadow-md z-10`;
-    volUpBtnStyle = {
-      backgroundColor: buttonColor,
-      borderRadius: buttonStyle === 'Pill' ? '9999px 0 0 9999px' : '3px 0 0 3px',
-      borderLeft: 'none'
-    };
-    volDownBtnStyleClass = `absolute left-[-6px] top-32 w-1.5 h-6 transition-all shadow-md z-10`;
-    volDownBtnStyle = {
-      backgroundColor: buttonColor,
-      borderRadius: buttonStyle === 'Pill' ? '9999px 0 0 9999px' : '3px 0 0 3px',
-      borderLeft: 'none'
-    };
-  } else if (buttonPlacement === 'Top Edge') {
-    powerBtnStyleClass = `absolute top-[-6px] left-12 w-8 h-1.5 transition-all shadow-md z-10`;
-    powerBtnStyle = {
-      backgroundColor: powerBtnColor,
-      borderRadius: buttonStyle === 'Pill' ? '9999px 9999px 0 0' : '3px 3px 0 0',
-      borderTop: 'none'
-    };
-    volUpBtnStyleClass = `absolute top-[-6px] right-20 w-6 h-1.5 transition-all shadow-md z-10`;
-    volUpBtnStyle = {
-      backgroundColor: buttonColor,
-      borderRadius: buttonStyle === 'Pill' ? '9999px 9999px 0 0' : '3px 3px 0 0',
-      borderTop: 'none'
-    };
-    volDownBtnStyleClass = `absolute top-[-6px] right-12 w-6 h-1.5 transition-all shadow-md z-10`;
-    volDownBtnStyle = {
-      backgroundColor: buttonColor,
-      borderRadius: buttonStyle === 'Pill' ? '9999px 9999px 0 0' : '3px 3px 0 0',
-      borderTop: 'none'
-    };
-  } else {
-    powerBtnStyleClass = `absolute right-[-6px] top-28 w-1.5 h-8 transition-all shadow-md z-10`;
-    powerBtnStyle = {
-      backgroundColor: powerBtnColor,
-      borderRadius: buttonStyle === 'Pill' ? '0 9999px 9999px 0' : '0 3px 3px 0',
-      borderRight: 'none'
-    };
-    volUpBtnStyleClass = `absolute left-[-6px] top-24 w-1.5 h-6 transition-all shadow-md z-10`;
-    volUpBtnStyle = {
-      backgroundColor: buttonColor,
-      borderRadius: buttonStyle === 'Pill' ? '9999px 0 0 9999px' : '3px 0 0 3px',
-      borderLeft: 'none'
-    };
-    volDownBtnStyleClass = `absolute left-[-6px] top-32 w-1.5 h-6 transition-all shadow-md z-10`;
-    volDownBtnStyle = {
-      backgroundColor: buttonColor,
-      borderRadius: buttonStyle === 'Pill' ? '9999px 0 0 9999px' : '3px 0 0 3px',
-      borderLeft: 'none'
-    };
+  } else if (category === 'smartphone' || category === 'tablet') {
+    if (buttonPlacement === 'Left Side') {
+      powerBtnStyleClass = `absolute left-[-6px] top-28 w-1.5 h-8 transition-all shadow-md z-10`;
+      powerBtnStyle = {
+        backgroundColor: powerBtnColor,
+        borderRadius: buttonStyle === 'Pill' ? '9999px 0 0 9999px' : '3px 0 0 3px',
+        borderLeft: 'none'
+      };
+      volUpBtnStyleClass = `absolute right-[-6px] top-24 w-1.5 h-6 transition-all shadow-md z-10`;
+      volUpBtnStyle = {
+        backgroundColor: buttonColor,
+        borderRadius: buttonStyle === 'Pill' ? '0 9999px 9999px 0' : '0 3px 3px 0',
+        borderRight: 'none'
+      };
+      volDownBtnStyleClass = `absolute right-[-6px] top-32 w-1.5 h-6 transition-all shadow-md z-10`;
+      volDownBtnStyle = {
+        backgroundColor: buttonColor,
+        borderRadius: buttonStyle === 'Pill' ? '0 9999px 9999px 0' : '0 3px 3px 0',
+        borderRight: 'none'
+      };
+    } else if (buttonPlacement === 'Both Sides') {
+      powerBtnStyleClass = `absolute right-[-6px] top-28 w-1.5 h-8 transition-all shadow-md z-10`;
+      powerBtnStyle = {
+        backgroundColor: powerBtnColor,
+        borderRadius: buttonStyle === 'Pill' ? '0 9999px 9999px 0' : '0 3px 3px 0',
+        borderRight: 'none'
+      };
+      volUpBtnStyleClass = `absolute left-[-6px] top-24 w-1.5 h-6 transition-all shadow-md z-10`;
+      volUpBtnStyle = {
+        backgroundColor: buttonColor,
+        borderRadius: buttonStyle === 'Pill' ? '9999px 0 0 9999px' : '3px 0 0 3px',
+        borderLeft: 'none'
+      };
+      volDownBtnStyleClass = `absolute left-[-6px] top-32 w-1.5 h-6 transition-all shadow-md z-10`;
+      volDownBtnStyle = {
+        backgroundColor: buttonColor,
+        borderRadius: buttonStyle === 'Pill' ? '9999px 0 0 9999px' : '3px 0 0 3px',
+        borderLeft: 'none'
+      };
+    } else if (buttonPlacement === 'Top Edge') {
+      powerBtnStyleClass = `absolute top-[-6px] left-12 w-8 h-1.5 transition-all shadow-md z-10`;
+      powerBtnStyle = {
+        backgroundColor: powerBtnColor,
+        borderRadius: buttonStyle === 'Pill' ? '9999px 9999px 0 0' : '3px 3px 0 0',
+        borderTop: 'none'
+      };
+      volUpBtnStyleClass = `absolute top-[-6px] right-20 w-6 h-1.5 transition-all shadow-md z-10`;
+      volUpBtnStyle = {
+        backgroundColor: buttonColor,
+        borderRadius: buttonStyle === 'Pill' ? '9999px 9999px 0 0' : '3px 3px 0 0',
+        borderTop: 'none'
+      };
+      volDownBtnStyleClass = `absolute top-[-6px] right-12 w-6 h-1.5 transition-all shadow-md z-10`;
+      volDownBtnStyle = {
+        backgroundColor: buttonColor,
+        borderRadius: buttonStyle === 'Pill' ? '9999px 9999px 0 0' : '3px 3px 0 0',
+        borderTop: 'none'
+      };
+    } else {
+      powerBtnStyleClass = `absolute right-[-6px] top-28 w-1.5 h-8 transition-all shadow-md z-10`;
+      powerBtnStyle = {
+        backgroundColor: powerBtnColor,
+        borderRadius: buttonStyle === 'Pill' ? '0 9999px 9999px 0' : '0 3px 3px 0',
+        borderRight: 'none'
+      };
+      volUpBtnStyleClass = `absolute left-[-6px] top-24 w-1.5 h-6 transition-all shadow-md z-10`;
+      volUpBtnStyle = {
+        backgroundColor: buttonColor,
+        borderRadius: buttonStyle === 'Pill' ? '9999px 0 0 9999px' : '3px 0 0 3px',
+        borderLeft: 'none'
+      };
+      volDownBtnStyleClass = `absolute left-[-6px] top-32 w-1.5 h-6 transition-all shadow-md z-10`;
+      volDownBtnStyle = {
+        backgroundColor: buttonColor,
+        borderRadius: buttonStyle === 'Pill' ? '9999px 0 0 9999px' : '3px 0 0 3px',
+        borderLeft: 'none'
+      };
+    }
   }
 
   return (
@@ -727,20 +822,24 @@ const getLogoGlowStyle = (glow: string, accentColor: string) => {
       </div>
 
       {/* Side Buttons */}
-      {viewMode !== 'box' && (
+      {viewMode !== 'box' && shouldRenderButtons && (
         <>
           <div
             className={powerBtnStyleClass}
             style={powerBtnStyle}
           />
-          <div
-            className={volUpBtnStyleClass}
-            style={volUpBtnStyle}
-          />
-          <div
-            className={volDownBtnStyleClass}
-            style={volDownBtnStyle}
-          />
+          {category !== 'smartwatch' && (
+            <>
+              <div
+                className={volUpBtnStyleClass}
+                style={volUpBtnStyle}
+              />
+              <div
+                className={volDownBtnStyleClass}
+                style={volDownBtnStyle}
+              />
+            </>
+          )}
         </>
       )}
 
@@ -748,7 +847,10 @@ const getLogoGlowStyle = (glow: string, accentColor: string) => {
       {viewMode !== 'box' && category === 'smartwatch' && renderWatchStraps(strapType, strapColor)}
 
       {/* Laptop Keyboard deck background */}
-      {viewMode !== 'box' && category === 'laptop' && renderLaptopDeck(backlightColor)}
+      {viewMode !== 'box' && category === 'laptop' && renderLaptopDeck(backlightColor, bodyColor)}
+
+      {/* TV Stand Base */}
+      {viewMode !== 'box' && category === 'smarttv' && renderTVStand(bodyColor)}
 
       {/* Phone Frame */}
       <div className={`relative ${frameRounded} ${frameAspectClass} border-[3px] border-border-bright/40 bg-gradient-to-b from-[#1a1f2e] via-[#0f1219] to-[#0a0d12] p-[10px] shadow-[0_20px_60px_rgba(0,0,0,0.6),0_0_0_1px_rgba(255,255,255,0.03)_inset] transition-all duration-300`}>
@@ -756,11 +858,14 @@ const getLogoGlowStyle = (glow: string, accentColor: string) => {
         <div className={`relative overflow-hidden bg-gradient-to-b from-surface to-[#06080c] transition-all duration-300 ${bezelRounded}`}>
           {viewMode === 'front' && (
             <div className={`transition-all duration-300 ${bezelPaddingClass}`}>
+              {/* Earbuds Inside layout */}
+              {category === 'earbuds' && renderEarbudsInside()}
+
               {/* Notch */}
-              {renderNotch(notchStyle)}
+              {category !== 'earbuds' && renderNotch(notchStyle)}
 
               {/* Curved screen reflection edges */}
-              {screenCurvature === 'Curved' && (
+              {category !== 'earbuds' && screenCurvature === 'Curved' && (
                 <>
                   <div className="absolute inset-y-0 left-0 w-2 bg-gradient-to-r from-white/10 to-transparent pointer-events-none z-20" />
                   <div className="absolute inset-y-0 right-0 w-2 bg-gradient-to-l from-white/10 to-transparent pointer-events-none z-20" />
@@ -770,11 +875,13 @@ const getLogoGlowStyle = (glow: string, accentColor: string) => {
               {/* Screen Content */}
               <div className={`relative ${screenMinHeightClass} transition-all duration-300 ${screenRoundingClass}`}>
                 {/* Status Bar */}
-                <div className="mb-3 flex items-center justify-between px-1 text-[9px] text-muted/70">
-                  <span className="font-mono">9:41</span>
-                  <span className="font-semibold">Device Tycoon</span>
-                  <span>100%</span>
-                </div>
+                {category !== 'earbuds' && (
+                  <div className="mb-3 flex items-center justify-between px-1 text-[9px] text-muted/70">
+                    <span className="font-mono">9:41</span>
+                    <span className="font-semibold">Device Tycoon</span>
+                    <span>100%</span>
+                  </div>
+                )}
 
                 {/* Device Name */}
                 <div className="mb-4 text-center">
