@@ -3,8 +3,8 @@ services:
     name: devices-tycoon
     env: node
     plan: free
-    buildCommand: npm run build:prod
-    startCommand: npm run start:prod
+    buildCommand: npm run build
+    startCommand: npm run start
     healthCheckPath: /health
     envVars:
       - key: PORT

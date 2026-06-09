@@ -5,10 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "tsc && vite build && npm install --prefix server && npm run build --prefix server",
     "preview": "vite preview",
-    "build:prod": "tsc && vite build && npm install --prefix server && npm run build --prefix server",
-    "start:prod": "node server/dist/server.js"
+    "start": "node server/dist/server.js"
   },
   "dependencies": {
     "react": "^19.0.0",
