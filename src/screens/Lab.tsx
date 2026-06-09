@@ -15,6 +15,8 @@ const SLOT_META: Record<ComponentSlot, { label: string; icon: string; gradient: 
   camera: { label: 'Camera', icon: '📷', gradient: 'from-pink-500 to-rose-500' },
   battery: { label: 'Battery', icon: '🔋', gradient: 'from-green-500 to-lime-500' },
   chassis: { label: 'Design', icon: '📐', gradient: 'from-slate-400 to-zinc-400' },
+  audio: { label: 'Audio', icon: '🔊', gradient: 'from-indigo-500 to-purple-500' },
+  connectivity: { label: 'Connectivity', icon: '📶', gradient: 'from-cyan-500 to-teal-500' },
 };
 
 const TIER_META: Record<number, { label: string; color: string }> = {
@@ -110,7 +112,7 @@ function CombinePreview({
     mergedStats[key] = Math.round(Math.max(v1, v2) * bonusMultiplier + Math.min(v1, v2) * 0.5);
   }
 
-  const combineCost = Math.floor((part1.cost + part2.cost) * 0.5);
+  const combineCost = Math.floor((part1.cost + part2.cost) * 0.5) * 1000;
   const resultCost = Math.round((part1.cost + part2.cost) * 0.7);
   const resultTierMeta = TIER_META[resultTier] ?? TIER_META[1];
   const slotMeta = SLOT_META[slot];
@@ -148,7 +150,7 @@ function CombinePreview({
       <div className="grid grid-cols-2 gap-3">
         <div className="rounded-xl bg-surface-raised/60 px-3 py-2">
           <p className="text-[10px] uppercase tracking-wider text-muted">Combine Cost</p>
-          <p className="font-mono text-lg font-bold text-warning">${combineCost}</p>
+          <p className="font-mono text-lg font-bold text-warning">${combineCost.toLocaleString()}</p>
         </div>
         <div className="rounded-xl bg-surface-raised/60 px-3 py-2">
           <p className="text-[10px] uppercase tracking-wider text-muted">Result Value</p>
@@ -229,7 +231,7 @@ export function Lab() {
   };
 
   const combineCost = selectedPart1 && selectedPart2
-    ? Math.floor((selectedPart1.cost + selectedPart2.cost) * 0.5)
+    ? Math.floor((selectedPart1.cost + selectedPart2.cost) * 0.5) * 1000
     : 0;
 
   return (
@@ -309,7 +311,7 @@ export function Lab() {
               <div>
                 <p className="text-sm text-muted">Combine Cost</p>
                 <p className={`font-mono text-lg font-bold ${cash >= combineCost ? 'text-warning' : 'text-danger'}`}>
-                  ${combineCost}
+                  ${combineCost.toLocaleString()}
                 </p>
               </div>
               <Button

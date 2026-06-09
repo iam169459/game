@@ -9,6 +9,7 @@ import type {
   MarketTrend,
   ProductDesign,
   ProductionLine,
+  ReleasedDevice,
 } from '../types';
 
 const BASE: DeviceStats = {
@@ -18,6 +19,15 @@ const BASE: DeviceStats = {
   battery: 25,
   build: 25,
   appeal: 20,
+};
+
+const CATEGORY_BONUS: Record<DeviceCategory, Partial<DeviceStats>> = {
+  smartphone:  { camera: 5, appeal: 5 },
+  laptop:      { performance: 5, build: 5 },
+  smartwatch:  { battery: 8, appeal: 5 },
+  tablet:      { display: 5, performance: 3 },
+  earbuds:     { battery: 5, appeal: 8 },
+  smarttv:     { display: 10, appeal: 6 },
 };
 
 export function getComponent(id: string) {
@@ -56,14 +66,11 @@ export function getDefaultComponents(category: DeviceCategory, unlockedTech: str
 export function calcDesignStats(category: DeviceCategory, components: Partial<Record<ComponentSlot, string>>) {
   const stats = { ...BASE };
   let unitCost = 8;
-  const bonus =
-    category === 'laptop'
-      ? { performance: 5, build: 5 }
-      : category === 'smartwatch'
-        ? { battery: 8, appeal: 5 }
-        : { camera: 5, appeal: 5 };
+  const bonus = CATEGORY_BONUS[category] ?? {};
 
-  for (const [k, v] of Object.entries(bonus)) stats[k as keyof DeviceStats] += v;
+  for (const [k, v] of Object.entries(bonus)) {
+    if (v !== undefined) stats[k as keyof DeviceStats] += v;
+  }
 
   for (const id of Object.values(components)) {
     if (!id) continue;
@@ -87,41 +94,160 @@ export function suggestPrice(stats: DeviceStats, unitCost: number, category: Dev
   return Math.round(unitCost * (1.4 + avg / 120) * meta.priceSensitivity * 10) / 10;
 }
 
+export function generateDeviceReview(
+  category: DeviceCategory,
+  stats: DeviceStats,
+  unitCost: number,
+  sellPrice: number,
+  components: Partial<Record<ComponentSlot, string>>,
+  unlockedTechCount: number
+) {
+  // 1. Base score derived from average stats (which ranges from 5 to 100)
+  const avgStats = Object.values(stats).reduce((a, b) => a + b, 0) / 6;
+
+  // 2. Price/value factor: markup ratio
+  const markup = sellPrice / Math.max(1, unitCost);
+  let priceScore = 100;
+  if (markup > 3.0) {
+    priceScore = Math.max(20, 100 - (markup - 3.0) * 45); // heavily penalize high pricing
+  } else if (markup > 1.8) {
+    priceScore = 100 - (markup - 1.8) * 18;
+  } else if (markup < 1.3) {
+    priceScore = 110; // value bonus
+  }
+
+  // 3. Outdated components penalty:
+  let tierSum = 0;
+  let compCount = 0;
+  for (const id of Object.values(components)) {
+    if (!id) continue;
+    const c = getComponent(id);
+    if (c) {
+      tierSum += c.tier;
+      compCount++;
+    }
+  }
+  const avgTier = compCount > 0 ? tierSum / compCount : 1;
+  const expectedTier = Math.min(5, 1 + Math.floor(unlockedTechCount / 8));
+  let tierPenalty = 0;
+  if (avgTier < expectedTier - 1.2) {
+    tierPenalty = (expectedTier - avgTier) * 15; // penalty for outdated tech
+  }
+
+  // Final score calculated as weighted average, bounded between 10 and 100
+  let finalScore = Math.round(avgStats * 0.5 + priceScore * 0.4 - tierPenalty + Math.random() * 8 - 4);
+  finalScore = Math.min(100, Math.max(10, finalScore));
+
+  // Specific feedback comments based on ratings
+  const feedbackList: string[] = [];
+
+  // Performance feedback
+  if (stats.performance > 70) {
+    feedbackList.push("Performance is blisteringly fast; it handles everything with absolute ease.");
+  } else if (stats.performance < 35) {
+    feedbackList.push("Performance is sluggish; navigating menus feels slow and frustrating.");
+  } else {
+    feedbackList.push("Performance is adequate for daily tasks, though it can hitch occasionally under load.");
+  }
+
+  // Battery life feedback
+  if (stats.battery > 70) {
+    feedbackList.push("The battery life is exceptional, easily stretching into a second day of heavy use.");
+  } else if (stats.battery < 35) {
+    feedbackList.push("Battery life is quite disappointing; expect to be charging it multiple times a day.");
+  } else {
+    feedbackList.push("Battery life will comfortably get you through a standard day on a single charge.");
+  }
+
+  // Camera feedback (for smartphone/tablet)
+  if (['smartphone', 'tablet'].includes(category)) {
+    if (stats.camera > 70) {
+      feedbackList.push("The camera captures stunningly detailed photos with superb colors.");
+    } else if (stats.camera < 35) {
+      feedbackList.push("The photos are grainy, washed out, and lack details in dim lighting.");
+    } else {
+      feedbackList.push("The camera is decent enough for quick snaps but lacks premium sharpness.");
+    }
+  }
+
+  // Value feedback
+  if (priceScore > 100) {
+    feedbackList.push("It offers incredible value for the money, punching way above its price tag.");
+  } else if (priceScore < 60) {
+    feedbackList.push("It is prohibitively expensive for what it offers; competitors offer far more value.");
+  }
+
+  // Fisher-Yates Shuffle algorithm to uniformly shuffle feedback options
+  const shuffledFeedbacks = [...feedbackList];
+  for (let i = shuffledFeedbacks.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const temp = shuffledFeedbacks[i];
+    shuffledFeedbacks[i] = shuffledFeedbacks[j];
+    shuffledFeedbacks[j] = temp;
+  }
+  const selectedFeedbacks = shuffledFeedbacks.slice(0, 3);
+  if (selectedFeedbacks.length < 2) {
+    selectedFeedbacks.push(`A solid attempt at a ${category} with a balance of features.`);
+  }
+
+  return {
+    score: finalScore,
+    feedbacks: selectedFeedbacks
+  };
+}
+
 export function getTechEffects(unlockedTech: string[]) {
   let factorySpeed = 0;
   let marketingBonus = 0;
   let labUnlocked = false;
+  let qualityBonus = 0;
+  let salesBonus = 0;
+  let costReduction = 0;
+
   for (const id of unlockedTech) {
     const t = getTech(id);
-    factorySpeed += t?.effects?.factorySpeed ?? 0;
+    factorySpeed  += t?.effects?.factorySpeed   ?? 0;
     marketingBonus += t?.effects?.marketingBonus ?? 0;
+    qualityBonus  += t?.effects?.qualityBonus    ?? 0;
+    salesBonus    += t?.effects?.salesBonus      ?? 0;
+    costReduction += t?.effects?.costReduction   ?? 0;
     if (t?.effects?.labUnlocked) labUnlocked = true;
   }
-  return { factorySpeed, marketingBonus, labUnlocked };
+  return { factorySpeed, marketingBonus, labUnlocked, qualityBonus, salesBonus, costReduction };
 }
 
 export function getTrendMultiplier(trends: MarketTrend[], category: DeviceCategory) {
-  return trends.reduce((m, t) => (t.category === 'all' || t.category === category ? m * t.demandMultiplier : m), 1);
+  return trends.reduce(
+    (m, t) => (t.category === 'all' || t.category === category ? m * t.demandMultiplier : m),
+    1,
+  );
 }
 
 export function simulateSales(
   designs: ProductDesign[],
+  releasedDevices: ReleasedDevice[],
   inventory: Record<string, number>,
   trends: MarketTrend[],
   fans: number,
   reputation: number,
   campaignBoost: number,
+  salesBonus = 0,
 ) {
   const unitsSold: Record<string, number> = {};
   let revenue = 0;
 
   for (const d of designs) {
+    const released = releasedDevices.find((r) => r.id === d.id);
+    if (!released) continue; // Must be released to sell
     const stock = inventory[d.id] ?? 0;
     if (stock <= 0) continue;
+
+    const hype = released.hype ?? 50;
     const trend = getTrendMultiplier(trends, d.category);
     const meta = CATEGORY_META[d.category];
-    const appeal = d.stats.appeal + campaignBoost + reputation * 0.2 + fans * 0.05;
-    const max = Math.floor((12 + appeal * 0.35) * meta.baseDemand * trend);
+    const appeal = d.stats.appeal + campaignBoost + reputation * 0.2 + fans * 0.05 + hype * 0.3;
+    const reviewMult = 0.3 + (d.reviewScore ?? 75) / 100;
+    const max = Math.floor((8 + appeal * 0.25) * meta.baseDemand * trend * (1 + salesBonus) * reviewMult * 750);
     const units = Math.min(stock, Math.max(0, Math.floor(max * (0.85 + Math.random() * 0.3))));
     unitsSold[d.id] = units;
     revenue += units * d.sellPrice;
@@ -129,10 +255,7 @@ export function simulateSales(
   return { unitsSold, revenue };
 }
 
-export function processProduction(
-  factories: ProductionLine[],
-  factorySpeedBonus: number,
-) {
+export function processProduction(factories: ProductionLine[], factorySpeedBonus: number) {
   return factories.map((f) => {
     const line = { ...f };
     if (!line.assignedProductId) return line;
@@ -149,7 +272,10 @@ export function rollTrend(day: number): MarketTrend | null {
 }
 
 export function getCampaignBoost(activeIds: string[], marketingBonus: number) {
-  return activeIds.reduce((s, id) => s + (CAMPAIGNS.find((c) => c.id === id)?.appealBoost ?? 0), 0) * (1 + marketingBonus);
+  return (
+    activeIds.reduce((s, id) => s + (CAMPAIGNS.find((c) => c.id === id)?.appealBoost ?? 0), 0) *
+    (1 + marketingBonus)
+  );
 }
 
 export function batteryToHours(batteryStat: number): number {

@@ -13,13 +13,15 @@ import { useGameStore } from '../store/useGameStore';
 import type { ComponentDef, ComponentSlot, DeviceCategory, DeviceStats } from '../types';
 
 const SLOT_META: Record<ComponentSlot, { label: string; icon: string; color: string; gradient: string }> = {
-  screen: { label: 'Screen', icon: '🖥️', color: 'text-blue-400', gradient: 'from-blue-500 to-cyan-500' },
-  cpu: { label: 'Processor', icon: '⚡', color: 'text-violet-400', gradient: 'from-violet-500 to-purple-500' },
-  ram: { label: 'RAM', icon: '🧩', color: 'text-emerald-400', gradient: 'from-emerald-500 to-teal-500' },
-  storage: { label: 'Storage', icon: '💾', color: 'text-amber-400', gradient: 'from-amber-500 to-orange-500' },
-  camera: { label: 'Camera', icon: '📷', color: 'text-pink-400', gradient: 'from-pink-500 to-rose-500' },
-  battery: { label: 'Battery', icon: '🔋', color: 'text-green-400', gradient: 'from-green-500 to-lime-500' },
-  chassis: { label: 'Design', icon: '📐', color: 'text-slate-300', gradient: 'from-slate-400 to-zinc-400' },
+  screen:       { label: 'Screen',       icon: '🖥️', color: 'text-blue-400',   gradient: 'from-blue-500 to-cyan-500' },
+  cpu:          { label: 'Processor',    icon: '⚡',  color: 'text-violet-400', gradient: 'from-violet-500 to-purple-500' },
+  ram:          { label: 'RAM',          icon: '🧩', color: 'text-emerald-400',gradient: 'from-emerald-500 to-teal-500' },
+  storage:      { label: 'Storage',      icon: '💾', color: 'text-amber-400',  gradient: 'from-amber-500 to-orange-500' },
+  camera:       { label: 'Camera',       icon: '📷', color: 'text-pink-400',   gradient: 'from-pink-500 to-rose-500' },
+  battery:      { label: 'Battery',      icon: '🔋', color: 'text-green-400',  gradient: 'from-green-500 to-lime-500' },
+  chassis:      { label: 'Design',       icon: '📐', color: 'text-slate-300',  gradient: 'from-slate-400 to-zinc-400' },
+  audio:        { label: 'Audio',        icon: '🎧', color: 'text-fuchsia-400',gradient: 'from-fuchsia-500 to-pink-500' },
+  connectivity: { label: 'Connectivity', icon: '📡', color: 'text-sky-400',    gradient: 'from-sky-500 to-blue-500' },
 };
 
 const TIER_META: Record<number, { label: string; color: string; ring: string }> = {

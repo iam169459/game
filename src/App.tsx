@@ -6,43 +6,34 @@ import { useStoreHydration } from './hooks/useStoreHydration';
 import { AccessLogin } from './screens/AccessLogin';
 import { DevicesTab } from './screens/DevicesTab';
 import { BlueprintsTab } from './screens/BlueprintsTab';
+import { FactoryTab } from './screens/FactoryTab';
+import { StoresTab } from './screens/StoresTab';
 import { EmployeesTab } from './screens/EmployeesTab';
+import { AchievementsTab } from './screens/AchievementsTab';
 import { SocialTab } from './screens/SocialTab';
+import { StocksTab } from './screens/StocksTab';
 import { Settings } from './screens/Settings';
 import { MainMenu } from './screens/MainMenu';
 import { useGameStore } from './store/useGameStore';
 import type { TabId, ScreenId } from './types';
+import { QuarterlyReportModal } from './components/QuarterlyReportModal';
+import { DeviceReviewModal } from './components/DeviceReviewModal';
+import { Lab } from './screens/Lab';
+import { Research } from './screens/Research';
+import { BankruptcyScreen } from './components/BankruptcyScreen';
 
 const TABS: Record<TabId, React.ComponentType> = {
-  devices: DevicesTab,
-  blueprints: BlueprintsTab,
-  employees: EmployeesTab,
-  social: SocialTab,
+  devices:      DevicesTab,
+  blueprints:   BlueprintsTab,
+  lab:          Lab,
+  research:     Research,
+  factory:      FactoryTab,
+  stores:       StoresTab,
+  stocks:       StocksTab,
+  employees:    EmployeesTab,
+  achievements: AchievementsTab,
+  social:       SocialTab,
 };
-
-function Notification() {
-  const message = useGameStore((s) => s.notification);
-  const clear = useGameStore((s) => s.clearNotification);
-
-  useEffect(() => {
-    if (!message) return;
-    const t = setTimeout(clear, 4000);
-    return () => clearTimeout(t);
-  }, [message, clear]);
-
-  if (!message) return null;
-
-  return (
-    <div
-      role="status"
-      className="fixed bottom-6 left-1/2 z-50 max-w-md -translate-x-1/2 cursor-pointer rounded-2xl border border-accent/50 bg-surface-card/95 px-5 py-3 text-sm shadow-2xl shadow-accent/20 backdrop-blur-xl animate-fade-up"
-      onClick={clear}
-    >
-      <span className="mr-2 text-accent">◆</span>
-      {message}
-    </div>
-  );
-}
 
 type AppPhase = 'loading' | 'login' | 'menu' | 'game';
 
@@ -50,8 +41,11 @@ export default function App() {
   const hydrated = useStoreHydration();
   const screen = useGameStore((s) => s.screen);
   const gameStarted = useGameStore((s) => s.gameStarted);
+  const cash = useGameStore((s) => s.cash);
   const startGame = useGameStore((s) => s.startGame);
   const continueGame = useGameStore((s) => s.continueGame);
+
+  const isBankrupt = gameStarted && cash < -10000000;
 
   const [phase, setPhase] = useState<AppPhase>(!hydrated ? 'loading' : 'login');
 
@@ -67,7 +61,7 @@ export default function App() {
         startGame(name);
       }
     },
-    [gameStarted, startGame, continueGame]
+    [gameStarted, startGame, continueGame],
   );
 
   useEffect(() => {
@@ -91,13 +85,13 @@ export default function App() {
   const advanceDay = useGameStore((s) => s.advanceDay);
 
   useEffect(() => {
-    if (!autoAdvance || phase !== 'game') return;
-    const intervalMs = Math.round(1000 / autoAdvanceSpeed);
+    if (!autoAdvance || phase !== 'game' || isBankrupt) return;
+    const intervalMs = Math.round(3000 / autoAdvanceSpeed);
     const timer = setInterval(() => {
       advanceDay();
     }, intervalMs);
     return () => clearInterval(timer);
-  }, [autoAdvance, autoAdvanceSpeed, advanceDay, phase]);
+  }, [autoAdvance, autoAdvanceSpeed, advanceDay, phase, isBankrupt]);
 
   if (phase === 'loading' || !hydrated) {
     return <SciFiLoading onComplete={handleLoadingComplete} />;
@@ -109,17 +103,16 @@ export default function App() {
 
   const showMenu = !gameStarted || screen === 'menu';
   if (showMenu && phase === 'menu') {
-    return (
-      <>
-        <MainMenu />
-        <Notification />
-      </>
-    );
+    return <MainMenu />;
   }
 
-  const isTab = (s: ScreenId): s is TabId => s !== 'menu' && s !== 'settings' && s in TABS;
-  const activeTab: TabId = isTab(screen) ? screen : 'devices';
+  if (isBankrupt) {
+    return <BankruptcyScreen />;
+  }
 
+  const isTab = (s: ScreenId): s is TabId =>
+    s !== 'menu' && s !== 'settings' && s in TABS;
+  const activeTab: TabId = isTab(screen) ? screen : 'devices';
   const Tab = TABS[activeTab];
 
   return (
@@ -129,7 +122,8 @@ export default function App() {
         {screen === 'settings' ? <Settings /> : <Tab />}
       </main>
       <BottomNav />
-      <Notification />
+      <QuarterlyReportModal />
+      <DeviceReviewModal />
     </div>
   );
 }

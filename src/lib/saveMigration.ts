@@ -1,8 +1,8 @@
 import type { GameSave, ScreenId } from '../types';
 
-const GAME_SCREENS: ScreenId[] = ['menu', 'devices', 'blueprints', 'employees', 'social', 'settings'];
+const GAME_SCREENS: ScreenId[] = ['menu', 'devices', 'blueprints', 'factory', 'stores', 'employees', 'achievements', 'social', 'stocks', 'settings'];
 
-const STARTING_CASH = 50_000;
+const STARTING_CASH = 20_000_000;
 
 export function createDefaultSave(): Partial<GameSave> {
   return {
@@ -55,6 +55,28 @@ export function createDefaultSave(): Partial<GameSave> {
       category: 'smartphone',
       components: {},
       sellPrice: 299,
+    },
+    stockPrices: {
+      'bot-1': { price: 150, history: [150], changePercent: 0 },
+      'bot-2': { price: 110, history: [110], changePercent: 0 },
+      'bot-3': { price: 95, history: [95], changePercent: 0 },
+      'bot-4': { price: 70, history: [70], changePercent: 0 },
+      'bot-5': { price: 50, history: [50], changePercent: 0 },
+    },
+    playerPortfolio: {
+      'bot-1': { shares: 0, avgCost: 0 },
+      'bot-2': { shares: 0, avgCost: 0 },
+      'bot-3': { shares: 0, avgCost: 0 },
+      'bot-4': { shares: 0, avgCost: 0 },
+      'bot-5': { shares: 0, avgCost: 0 },
+    },
+    monthAccumulator: {
+      revenue: 0,
+      productionCost: 0,
+      marketingCost: 0,
+      upkeep: 0,
+      unitsSold: 0,
+      deviceSales: {},
     },
   };
 }
@@ -118,6 +140,18 @@ export function sanitizePersistedState(persisted: unknown): Partial<GameSave> {
           ? state.draft.components
           : {},
     },
+    stockPrices:
+      state.stockPrices && typeof state.stockPrices === 'object'
+        ? state.stockPrices
+        : defaults.stockPrices!,
+    playerPortfolio:
+      state.playerPortfolio && typeof state.playerPortfolio === 'object'
+        ? state.playerPortfolio
+        : defaults.playerPortfolio!,
+    monthAccumulator:
+      state.monthAccumulator && typeof state.monthAccumulator === 'object'
+        ? state.monthAccumulator
+        : defaults.monthAccumulator!,
     // Ignore unknown keys from older saves (e.g. Phaser / v1 React)
     version: typeof raw.version === 'number' ? raw.version : 1,
   };

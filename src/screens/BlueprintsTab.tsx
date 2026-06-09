@@ -1,18 +1,19 @@
 import { useState, useMemo } from 'react';
 import { Button } from '../components/ui/Button';
 import { COMPONENTS, CATEGORY_META, SLOTS_BY_CATEGORY } from '../data/components';
-import { TECH_TREE } from '../data/techTree';
 import { useGameStore } from '../store/useGameStore';
 import type { DeviceCategory, ComponentSlot } from '../types';
 
 const SLOT_META: Record<ComponentSlot, { label: string; icon: string }> = {
-  screen: { label: 'Screen', icon: '🖥️' },
-  cpu: { label: 'CPU', icon: '⚡' },
-  ram: { label: 'RAM', icon: '🧩' },
-  storage: { label: 'Storage', icon: '💾' },
-  camera: { label: 'Camera', icon: '📷' },
-  battery: { label: 'Battery', icon: '🔋' },
-  chassis: { label: 'Chassis', icon: '📐' },
+  screen:       { label: 'Screen',       icon: '🖥️' },
+  cpu:          { label: 'CPU',          icon: '⚡' },
+  ram:          { label: 'RAM',          icon: '🧩' },
+  storage:      { label: 'Storage',      icon: '💾' },
+  camera:       { label: 'Camera',       icon: '📷' },
+  battery:      { label: 'Battery',      icon: '🔋' },
+  chassis:      { label: 'Chassis',      icon: '📐' },
+  audio:        { label: 'Audio',        icon: '🎧' },
+  connectivity: { label: 'Connectivity', icon: '📡' },
 };
 
 const TIER_COLORS: Record<number, string> = {
@@ -24,9 +25,7 @@ const TIER_COLORS: Record<number, string> = {
 };
 
 export function BlueprintsTab() {
-  const cash = useGameStore((s) => s.cash);
   const unlockedTech = useGameStore((s) => s.unlockedTech);
-  const researching = useGameStore((s) => s.researching);
   const designs = useGameStore((s) => s.designs);
   const setScreen = useGameStore((s) => s.setScreen);
   const draft = useGameStore((s) => s.draft);
@@ -35,16 +34,9 @@ export function BlueprintsTab() {
   const setDraftComponent = useGameStore((s) => s.setDraftComponent);
   const setDraftSellPrice = useGameStore((s) => s.setDraftSellPrice);
   const releaseDevice = useGameStore((s) => s.releaseDevice);
-  const startResearch = useGameStore((s) => s.startResearch);
 
   const [activeCategory, setActiveCategory] = useState<DeviceCategory>(draft.category);
-  const [showResearch, setShowResearch] = useState(false);
 
-  const canResearch = (id: string) => {
-    const tech = TECH_TREE.find((t) => t.id === id);
-    if (!tech || unlockedTech.includes(id) || researching) return false;
-    return tech.prerequisites.every((p) => unlockedTech.includes(p)) && cash >= tech.cost;
-  };
 
   const availableBySlot = useMemo(() => {
     const map: Partial<Record<ComponentSlot, typeof COMPONENTS[0][]>> = {};
@@ -74,8 +66,8 @@ export function BlueprintsTab() {
   return (
     <div className="space-y-4">
       {/* Category Selector */}
-      <div className="flex gap-2">
-        {(['smartphone', 'laptop', 'smartwatch'] as const).map((cat) => (
+      <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+        {(['smartphone', 'laptop', 'smartwatch', 'tablet', 'earbuds', 'smarttv'] as const).map((cat) => (
           <button
             key={cat}
             type="button"
@@ -83,14 +75,14 @@ export function BlueprintsTab() {
               setActiveCategory(cat);
               setDraftCategory(cat);
             }}
-            className={`flex-1 rounded-xl border p-3 text-center transition ${
+            className={`rounded-xl border p-2 text-center transition flex flex-col items-center justify-center ${
               activeCategory === cat
-                ? 'border-accent/50 bg-accent/10 text-accent-soft'
+                ? 'border-accent/50 bg-accent/10 text-accent-soft shadow-lg shadow-accent/10'
                 : 'border-border/40 bg-surface-card/60 text-muted hover:border-border-bright'
             }`}
           >
-            <span className="text-2xl">{CATEGORY_META[cat].icon}</span>
-            <p className="mt-1 text-xs font-medium">{CATEGORY_META[cat].label}</p>
+            <span className="text-xl">{CATEGORY_META[cat].icon}</span>
+            <p className="mt-0.5 text-[10px] font-medium leading-tight">{CATEGORY_META[cat].label}</p>
           </button>
         ))}
       </div>
@@ -143,16 +135,26 @@ export function BlueprintsTab() {
                     key={comp.id}
                     type="button"
                     onClick={() => setDraftComponent(slot, comp.id)}
-                    className={`rounded-lg border px-2.5 py-1.5 text-[10px] font-medium transition ${
+                    className={`rounded-xl border px-3 py-2 text-[10px] font-medium transition flex flex-col items-start gap-0.5 min-w-[125px] ${
                       selected === comp.id
-                        ? 'border-accent/50 bg-accent/15 text-accent-soft'
+                        ? 'border-accent bg-accent/15 text-accent-soft'
                         : 'border-border/40 bg-surface-hover/60 text-muted hover:border-border-bright hover:text-fg'
                     }`}
                   >
-                    {comp.name}
-                    <span className={`ml-1 rounded px-1 py-0.5 text-[8px] ${TIER_COLORS[comp.tier]}`}>
-                      T{comp.tier}
-                    </span>
+                    <div className="flex items-center justify-between w-full gap-2">
+                      <span className="font-semibold text-fg">{comp.name}</span>
+                      <span className={`rounded px-1 py-0.2 text-[8px] font-bold ${TIER_COLORS[comp.tier]}`}>
+                        T{comp.tier}
+                      </span>
+                    </div>
+                    <div className="flex justify-between w-full text-[9px] text-muted/80 mt-0.5">
+                      <span>Cost: ${comp.cost}</span>
+                      <span className="font-mono text-[8px] text-accent-soft/90 ml-2">
+                        {Object.entries(comp.stats)
+                          .map(([k, v]) => `${k.slice(0, 3)}:${v! > 0 ? '+' : ''}${v}`)
+                          .join(' ')}
+                      </span>
+                    </div>
                   </button>
                 ))}
                 {options.length === 0 && (
@@ -210,96 +212,6 @@ export function BlueprintsTab() {
           </div>
         </div>
       )}
-
-      {/* Research Section */}
-      <div className="border-t border-border/40 pt-4">
-        <button
-          type="button"
-          onClick={() => setShowResearch(!showResearch)}
-          className="flex w-full items-center justify-between rounded-xl border border-border/40 bg-surface-card/60 p-3 transition hover:border-border-bright"
-        >
-          <div className="flex items-center gap-2">
-            <span className="text-lg">🔬</span>
-            <span className="text-xs font-medium text-fg">Research & Development</span>
-          </div>
-          <div className="flex items-center gap-2">
-            {researching && (
-              <span className="rounded bg-warning/15 px-1.5 py-0.5 text-[9px] font-medium text-warning">
-                In Progress
-              </span>
-            )}
-            <span className="text-xs text-muted">{showResearch ? '▲' : '▼'}</span>
-          </div>
-        </button>
-
-        {showResearch && (
-          <div className="mt-3 space-y-3">
-            {/* Active Research */}
-            {researching && (
-              <div className="rounded-xl border border-warning/30 bg-warning/5 p-3">
-                <div className="flex items-center justify-between">
-                  <p className="text-xs font-medium text-fg">
-                    🔬 {TECH_TREE.find((t) => t.id === researching.techId)?.name}
-                  </p>
-                  <p className="text-[10px] text-muted">{researching.daysLeft} days left</p>
-                </div>
-                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-surface-hover">
-                  <div
-                    className="h-full rounded-full bg-warning transition-all"
-                    style={{
-                      width: `${Math.max(8, (1 - researching.daysLeft / (TECH_TREE.find((t) => t.id === researching.techId)?.researchDays ?? 1)) * 100)}%`,
-                    }}
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* Tech Tree */}
-            <div className="grid gap-2 sm:grid-cols-2">
-              {TECH_TREE.map((tech) => {
-                const unlocked = unlockedTech.includes(tech.id);
-                return (
-                  <div
-                    key={tech.id}
-                    className={`rounded-xl border p-3 transition ${
-                      unlocked
-                        ? 'border-success/30 bg-success/5'
-                        : 'border-border/40 bg-surface-card/60'
-                    }`}
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="min-w-0">
-                        <p className="text-xs font-medium text-fg">{tech.name}</p>
-                        <p className="text-[10px] text-muted">{tech.description}</p>
-                      </div>
-                      {unlocked && (
-                        <span className="shrink-0 rounded bg-success/15 px-1.5 py-0.5 text-[8px] font-medium text-success">
-                          ✓
-                        </span>
-                      )}
-                    </div>
-                    <div className="mt-2 flex items-center justify-between">
-                      <p className="text-[9px] text-muted">
-                        ${tech.cost.toLocaleString()} · {tech.researchDays}d
-                      </p>
-                      {!unlocked && (
-                        <button
-                          type="button"
-                          onClick={() => startResearch(tech.id)}
-                          disabled={!canResearch(tech.id)}
-                          className="rounded-lg bg-accent/15 px-2 py-1 text-[9px] font-medium text-accent-soft transition hover:bg-accent/25 disabled:opacity-40 disabled:cursor-not-allowed"
-                        >
-                          Research
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-      </div>
     </div>
   );
 }

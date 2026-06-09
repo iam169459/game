@@ -1,5 +1,18 @@
-export type ScreenId = 'menu' | 'devices' | 'blueprints' | 'employees' | 'social' | 'settings';
-export type TabId = 'devices' | 'blueprints' | 'employees' | 'social';
+export type ScreenId =
+  | 'menu'
+  | 'devices'
+  | 'blueprints'
+  | 'lab'
+  | 'research'
+  | 'factory'
+  | 'stores'
+  | 'employees'
+  | 'achievements'
+  | 'social'
+  | 'stocks'
+  | 'settings';
+
+export type TabId = 'devices' | 'blueprints' | 'lab' | 'research' | 'factory' | 'stores' | 'employees' | 'achievements' | 'social' | 'stocks';
 
 export type BotStrategy = 'budget' | 'midrange' | 'flagship' | 'innovator' | 'underdog';
 
@@ -33,7 +46,13 @@ export interface BotCompany {
   };
 }
 
-export type DeviceCategory = 'smartphone' | 'laptop' | 'smartwatch';
+export type DeviceCategory =
+  | 'smartphone'
+  | 'laptop'
+  | 'smartwatch'
+  | 'tablet'
+  | 'earbuds'
+  | 'smarttv';
 
 export type ComponentSlot =
   | 'screen'
@@ -42,7 +61,9 @@ export type ComponentSlot =
   | 'camera'
   | 'battery'
   | 'storage'
-  | 'chassis';
+  | 'chassis'
+  | 'audio'
+  | 'connectivity';
 
 export interface DeviceStats {
   performance: number;
@@ -73,6 +94,8 @@ export interface ProductDesign {
   unitCost: number;
   sellPrice: number;
   createdDay: number;
+  reviewScore?: number;
+  reviewFeedback?: string[];
 }
 
 export interface TechNode {
@@ -82,8 +105,16 @@ export interface TechNode {
   cost: number;
   researchDays: number;
   prerequisites: string[];
+  category: 'hardware' | 'software' | 'manufacturing' | 'marketing' | 'research';
   unlocks?: string[];
-  effects?: { factorySpeed?: number; marketingBonus?: number; labUnlocked?: boolean };
+  effects?: {
+    factorySpeed?: number;
+    marketingBonus?: number;
+    labUnlocked?: boolean;
+    qualityBonus?: number;
+    salesBonus?: number;
+    costReduction?: number;
+  };
 }
 
 export interface MarketTrend {
@@ -138,6 +169,10 @@ export interface ReleasedDevice {
   durability: number;
   maxDurability: number;
   maintenanceCost: number;
+  reviewScore?: number;
+  reviewFeedback?: string[];
+  hype?: number;
+  isDiscontinued?: boolean;
 }
 
 export interface MonthlySales {
@@ -172,7 +207,15 @@ export interface Competitor {
   trend: 'up' | 'down' | 'stable';
 }
 
-export type EmployeeTrait = 'efficient' | 'expensive' | 'unstable' | 'diligent' | 'resilient' | 'lazy' | 'veteran' | 'trainee';
+export type EmployeeTrait =
+  | 'efficient'
+  | 'expensive'
+  | 'unstable'
+  | 'diligent'
+  | 'resilient'
+  | 'lazy'
+  | 'veteran'
+  | 'trainee';
 
 export interface Employee {
   id: string;
@@ -244,6 +287,59 @@ export interface Friend {
   addedMonth: number;
 }
 
+// ── Retail Store System ─────────────────────────────────────────────────────
+
+export type StoreRegion = 'north_america' | 'europe' | 'asia' | 'south_america' | 'middle_east' | 'africa';
+
+export interface RetailStore {
+  id: string;
+  name: string;
+  region: StoreRegion;
+  tier: 1 | 2 | 3;
+  purchaseCost: number;
+  monthlyMaintenance: number;
+  salesMultiplier: number;
+  demandBonus: number;
+  purchasedMonth: number;
+  isUpgrading: boolean;
+  upgradeCompletesMonth: number | null;
+}
+
+// ── Achievement System ──────────────────────────────────────────────────────
+
+export type AchievementCategory = 'sales' | 'devices' | 'finance' | 'research' | 'empire' | 'social';
+
+export interface Achievement {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  category: AchievementCategory;
+  reward: number; // cash reward
+  unlockedMonth: number | null; // null = locked
+}
+
+// ── Loan System ─────────────────────────────────────────────────────────────
+
+export interface Loan {
+  id: string;
+  principal: number;
+  remaining: number;
+  monthlyPayment: number;
+  interestRate: number;
+  takenMonth: number;
+  dueMonth: number;
+}
+
+// ── News Ticker ─────────────────────────────────────────────────────────────
+
+export interface NewsItem {
+  id: string;
+  text: string;
+  icon: string;
+  month: number;
+}
+
 export interface GameSave {
   version: number;
   companyName: string;
@@ -281,4 +377,29 @@ export interface GameSave {
   totalRepairCosts?: number;
   totalMaintenanceSpent?: number;
   friends?: Friend[];
+  retailStores?: RetailStore[];
+  achievements?: Achievement[];
+  loans?: Loan[];
+  newsHistory?: NewsItem[];
+  stockPrices?: Record<string, StockPrice>;
+  playerPortfolio?: Record<string, StockHolding>;
+  monthAccumulator?: {
+    revenue: number;
+    productionCost: number;
+    marketingCost: number;
+    upkeep: number;
+    unitsSold: number;
+    deviceSales: Record<string, number>;
+  };
+}
+
+export interface StockHolding {
+  shares: number;
+  avgCost: number;
+}
+
+export interface StockPrice {
+  price: number;
+  history: number[];
+  changePercent: number;
 }

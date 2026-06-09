@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: devices-tycoon
+    env: node
+    plan: free
+    buildCommand: npm run build:prod
+    startCommand: npm run start:prod
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 3001
+      - key: NODE_ENV
+        value: production
+    # Note: Render Free tier does not support persistent disks.
+    # If you upgrade to a paid Render plan (e.g. Starter) to retain player profile data
+    # across server restarts, uncomment the following block before deploying:
+    # disk:
+    #   name: devices-tycoon-data
+    #   mountPath: /opt/render/project/src/server/data
+    #   sizeGB: 1

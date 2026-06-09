@@ -28,6 +28,7 @@
 
 import express from 'express';
 import cors from 'cors';
+import path from 'path';
 import { playerStore } from './store/playerStore';
 import { createPlayerProfile } from './types';
 import { addFriend, removeFriend, donateMoney, getFriendList } from './modules/social';
@@ -336,6 +337,18 @@ app.get('/api/advanced/employee-types', (_req, res) => {
 app.post('/api/advanced/tick', async (_req, res) => {
   const report = await getAdvancedTickReport();
   sendResult(res, { success: true, message: 'Advanced tick report.', data: report });
+});
+
+// ─── Serve Frontend Static Files ──────────────────────────────────
+const distPath = path.join(__dirname, '../../dist');
+app.use(express.static(distPath));
+
+// For any other routes, serve index.html (supporting in-memory routing)
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/api') || req.path.startsWith('/health')) {
+    return next();
+  }
+  res.sendFile(path.join(distPath, 'index.html'));
 });
 
 // ─── Health Check ────────────────────────────────────────────────

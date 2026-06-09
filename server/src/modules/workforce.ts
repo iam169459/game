@@ -376,7 +376,7 @@ export function startTickLoop(): void {
 
   // Also flush store periodically alongside ticks
   setInterval(() => {
-    playerStore.flush();
+    playerStore.flushAsync();
   }, TICK_INTERVAL_MS);
 }
 

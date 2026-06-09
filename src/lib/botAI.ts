@@ -15,7 +15,7 @@ export function createBotCompanies(): BotCompany[] {
   const bots: Omit<BotCompany, 'personality'>[] = [
     {
       id: 'bot-1', name: 'TechNova Inc', color: '#3b82f6', logo: '⚡',
-      strategy: 'flagship', cash: 120000, reputation: 68, fans: 150,
+      strategy: 'flagship', cash: 150000000, reputation: 68, fans: 150,
       unlockedTech: ['chip-5nm', 'display-oled'], releasedDevices: [],
       monthlyRevenue: 0, monthlyProfit: 0, marketShare: 25,
       trend: 'up', lastReleaseMonth: 0, employees: 45,
@@ -23,7 +23,7 @@ export function createBotCompanies(): BotCompany[] {
     },
     {
       id: 'bot-2', name: 'PixelCraft', color: '#8b5cf6', logo: '🎮',
-      strategy: 'innovator', cash: 95000, reputation: 62, fans: 120,
+      strategy: 'innovator', cash: 120000000, reputation: 62, fans: 120,
       unlockedTech: ['chip-5nm', 'camera-48mp'], releasedDevices: [],
       monthlyRevenue: 0, monthlyProfit: 0, marketShare: 20,
       trend: 'stable', lastReleaseMonth: 0, employees: 32,
@@ -31,7 +31,7 @@ export function createBotCompanies(): BotCompany[] {
     },
     {
       id: 'bot-3', name: 'Zenith Labs', color: '#10b981', logo: '🔬',
-      strategy: 'midrange', cash: 80000, reputation: 55, fans: 90,
+      strategy: 'midrange', cash: 100000000, reputation: 55, fans: 90,
       unlockedTech: ['chip-7nm'], releasedDevices: [],
       monthlyRevenue: 0, monthlyProfit: 0, marketShare: 18,
       trend: 'down', lastReleaseMonth: 0, employees: 28,
@@ -39,7 +39,7 @@ export function createBotCompanies(): BotCompany[] {
     },
     {
       id: 'bot-4', name: 'BudgetBox', color: '#f59e0b', logo: '💰',
-      strategy: 'budget', cash: 60000, reputation: 45, fans: 200,
+      strategy: 'budget', cash: 80000000, reputation: 45, fans: 200,
       unlockedTech: [], releasedDevices: [],
       monthlyRevenue: 0, monthlyProfit: 0, marketShare: 22,
       trend: 'up', lastReleaseMonth: 0, employees: 55,
@@ -47,7 +47,7 @@ export function createBotCompanies(): BotCompany[] {
     },
     {
       id: 'bot-5', name: 'NexGen', color: '#ef4444', logo: '🚀',
-      strategy: 'underdog', cash: 45000, reputation: 38, fans: 60,
+      strategy: 'underdog', cash: 60000000, reputation: 38, fans: 60,
       unlockedTech: [], releasedDevices: [],
       monthlyRevenue: 0, monthlyProfit: 0, marketShare: 15,
       trend: 'stable', lastReleaseMonth: 0, employees: 18,
@@ -142,12 +142,12 @@ export function botAdvanceMonth(
     // 1. Bot AI: Should we release a new device?
     const monthsSinceRelease = month - bot.lastReleaseMonth;
     const shouldRelease =
-      monthsSinceRelease >= (bot.personality.aggression >= 0.6 ? 2 : 3) &&
-      bot.cash > 20000 &&
+      monthsSinceRelease >= (bot.personality.aggression >= 0.6 ? 1 : 2) &&
+      bot.cash > 20000000 &&
       Math.random() < bot.personality.aggression;
 
     if (shouldRelease) {
-      const categories: DeviceCategory[] = ['smartphone', 'laptop', 'smartwatch'];
+      const categories: DeviceCategory[] = ['smartphone', 'laptop', 'smartwatch', 'tablet', 'earbuds', 'smarttv'];
       const category = categories[Math.floor(Math.random() * categories.length)];
 
       const components = pickComponents(category, bot.strategy, bot.unlockedTech);
@@ -157,29 +157,44 @@ export function botAdvanceMonth(
 
       const deviceNames: Record<BotStrategy, Record<DeviceCategory, string[]>> = {
         budget: {
-          smartphone: ['EcoPhone', 'ValueOne', 'LiteMax', 'Pocket Pro'],
-          laptop: ['BookLite', 'StudyPro', 'EconoBook', 'CloudBook'],
-          smartwatch: ['FitBand', 'HealthPulse', 'StepPro', 'ActiveWatch'],
+          smartphone:  ['EcoPhone', 'ValueOne', 'LiteMax', 'Pocket Pro'],
+          laptop:      ['BookLite', 'StudyPro', 'EconoBook', 'CloudBook'],
+          smartwatch:  ['FitBand', 'HealthPulse', 'StepPro', 'ActiveWatch'],
+          tablet:      ['SlateBasic', 'EcoTab', 'ValuePad', 'StudySlate'],
+          earbuds:     ['BudBudget', 'EcoAir', 'ValueBuds', 'BasicPods'],
+          smarttv:     ['EcoScreen', 'ValueTV', 'LiteView', 'HomeVision'],
         },
         midrange: {
-          smartphone: ['均衡Pro', 'CoreX', 'Balance One', 'MidTier'],
-          laptop: ['FlexBook', 'EveryDay Pro', 'CoreBook', 'SwiftPro'],
-          smartwatch: ['PulseWave', 'ActiveTrack', 'HealthSync', 'VitalWatch'],
+          smartphone:  ['均衡Pro', 'CoreX', 'Balance One', 'MidTier'],
+          laptop:      ['FlexBook', 'EveryDay Pro', 'CoreBook', 'SwiftPro'],
+          smartwatch:  ['PulseWave', 'ActiveTrack', 'HealthSync', 'VitalWatch'],
+          tablet:      ['CorePad', 'BalanceTab', 'FlexSlate', 'MidPad'],
+          earbuds:     ['SoundCore', 'MidBuds', 'BalanceAir', 'ClearPods'],
+          smarttv:     ['ViewPro', 'CoreScreen', 'BalanceTV', 'ClearView'],
         },
         flagship: {
-          smartphone: ['UltraPhone', 'PrimeMax', 'Elite Pro', 'Titan X'],
-          laptop: ['TitanBook', 'UltraPro', 'ApexBook', 'MaxStudio'],
-          smartwatch: ['LuxeWatch', 'ApexBand', 'RoyalPulse', 'PrimeTime'],
+          smartphone:  ['UltraPhone', 'PrimeMax', 'Elite Pro', 'Titan X'],
+          laptop:      ['TitanBook', 'UltraPro', 'ApexBook', 'MaxStudio'],
+          smartwatch:  ['LuxeWatch', 'ApexBand', 'RoyalPulse', 'PrimeTime'],
+          tablet:      ['ProPad Ultra', 'TitanTab', 'EliteSlate', 'ApexPad'],
+          earbuds:     ['SoundElite', 'UltraAir Pro', 'ApexPods', 'PrimeBuds'],
+          smarttv:     ['UltraVision', 'ProScreen 8K', 'EliteDisplay', 'ApexView'],
         },
         innovator: {
-          smartphone: ['NeuraPhone', 'QuantumX', 'HoloTouch', 'FutureOne'],
-          laptop: ['QuantumBook', 'HoloDesk', 'NeuralPad', 'FuturBook'],
-          smartwatch: ['NeuralBand', 'HoloWatch', 'QuantumPulse', 'MindTrack'],
+          smartphone:  ['NeuraPhone', 'QuantumX', 'HoloTouch', 'FutureOne'],
+          laptop:      ['QuantumBook', 'HoloDesk', 'NeuralPad', 'FuturBook'],
+          smartwatch:  ['NeuralBand', 'HoloWatch', 'QuantumPulse', 'MindTrack'],
+          tablet:      ['NeuroTab', 'QuantumSlate', 'HoloPad', 'FuturePad'],
+          earbuds:     ['NeuralBuds', 'QuantumSound', 'HoloAir', 'FuturePods'],
+          smarttv:     ['NeuroVision', 'QuantumDisplay', 'HoloScreen', 'FutureView'],
         },
         underdog: {
-          smartphone: ['RisePhone', 'UnderPro', 'Challenger', 'WildCard'],
-          laptop: ['RiseBook', 'FightPro', 'WildBook', 'StormBook'],
-          smartwatch: ['RiseBand', 'WildPulse', 'StormWatch', 'FightTrack'],
+          smartphone:  ['RisePhone', 'UnderPro', 'Challenger', 'WildCard'],
+          laptop:      ['RiseBook', 'FightPro', 'WildBook', 'StormBook'],
+          smartwatch:  ['RiseBand', 'WildPulse', 'StormWatch', 'FightTrack'],
+          tablet:      ['RisePad', 'WildTab', 'StormSlate', 'FightPad'],
+          earbuds:     ['RiseBuds', 'WildAir', 'StormPods', 'FightBuds'],
+          smarttv:     ['RiseView', 'WildScreen', 'StormTV', 'FightVision'],
         },
       };
 
@@ -196,6 +211,7 @@ export function botAdvanceMonth(
       const botSales = Math.floor(
         (overallScore * 0.6 + bot.fans * 0.02 + bot.reputation * 0.1) * trendMult *
         (1 + bot.personality.marketing * 0.3) * (0.8 + Math.random() * 0.4)
+        * 1000
       );
 
       const revenue = botSales * sellPrice;
@@ -228,6 +244,8 @@ export function botAdvanceMonth(
         durability,
         maxDurability: durability,
         maintenanceCost,
+        hype: Math.min(100, Math.round(40 + bot.personality.marketing * 40 + Math.random() * 20)),
+        isDiscontinued: false,
       };
 
       updated.releasedDevices = [...bot.releasedDevices.slice(-5), releasedDevice];
@@ -255,13 +273,13 @@ export function botAdvanceMonth(
     }
 
     // 2. Bot AI: Research new tech
-    if (bot.personality.innovation > 0.5 && updated.cash > 15000 && Math.random() < bot.personality.innovation * 0.3) {
+    if (bot.personality.innovation > 0.5 && updated.cash > 15000000 && Math.random() < bot.personality.innovation * 0.3) {
       const techOptions = ['chip-5nm', 'chip-3nm', 'display-oled', 'display-4k', 'camera-48mp', 'camera-108mp', 'battery-graphene', 'storage-1tb', 'chassis-titan', 'ram-8gb', 'ram-16gb'];
       const unowned = techOptions.filter((t) => !updated.unlockedTech.includes(t));
       if (unowned.length > 0) {
         const tech = unowned[Math.floor(Math.random() * unowned.length)];
         updated.unlockedTech = [...updated.unlockedTech, tech];
-        updated.cash -= 8000;
+        updated.cash -= 8000000;
       }
     }
 
@@ -270,7 +288,7 @@ export function botAdvanceMonth(
     updated.fans = Math.max(10, updated.fans + Math.floor(Math.random() * 10 - 3));
 
     // 4. Hire employees occasionally
-    if (updated.cash > 50000 && updated.employees < 100 && Math.random() < 0.3) {
+    if (updated.cash > 50000000 && updated.employees < 100 && Math.random() < 0.3) {
       updated.employees += 1;
       // Distribute to weakest department
       const depts = updated.departmentBonus;
@@ -282,6 +300,15 @@ export function botAdvanceMonth(
         updated.departmentBonus = { ...depts, manufacturing: depts.manufacturing + 1 };
       }
     }
+
+    // Decay bot devices hype monthly
+    updated.releasedDevices = updated.releasedDevices.map((d) => {
+      const decayAmt = 5 + Math.floor(Math.random() * 6);
+      return {
+        ...d,
+        hype: Math.max(0, (d.hype ?? 60) - decayAmt),
+      };
+    });
 
     return updated;
   });

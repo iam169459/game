@@ -12,11 +12,13 @@ function DeviceCard({ device }: { device: ReleasedDevice }) {
   const lastMonthSales = device.monthlySales[device.monthlySales.length - 1] ?? 0;
   const durabilityPercent = Math.round((device.durability / device.maxDurability) * 100);
   const repairDevice = useGameStore((s) => s.repairDevice);
+  const discontinueDevice = useGameStore((s) => s.discontinueDevice);
   const missingDurability = device.maxDurability - device.durability;
   const repairCost = Math.round(missingDurability * device.maintenanceCost * 0.5);
+  const hype = device.hype ?? 50;
 
   return (
-    <div className="rounded-xl border border-border/50 bg-surface-card/80 p-4 transition hover:border-border-bright active:scale-[0.98]">
+    <div className="rounded-xl border border-border/50 bg-surface-card/80 p-4 transition hover:border-border-bright">
       {/* Header */}
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
@@ -25,7 +27,9 @@ function DeviceCard({ device }: { device: ReleasedDevice }) {
           </div>
           <div>
             <h3 className="font-semibold text-fg">{device.name}</h3>
-            <p className="text-xs text-muted">{meta.label}</p>
+            <p className="text-xs text-muted">
+              {meta.label} {device.isDiscontinued && <span className="text-danger-soft font-semibold">(Discontinued)</span>}
+            </p>
           </div>
         </div>
         <div className="rounded-lg bg-accent/15 px-2.5 py-1 text-center">
@@ -43,6 +47,20 @@ function DeviceCard({ device }: { device: ReleasedDevice }) {
             <p className="font-mono text-xs font-bold text-fg">{val}</p>
           </div>
         ))}
+      </div>
+
+      {/* Hype Level */}
+      <div className="mt-3 rounded-lg bg-accent/5 p-2.5">
+        <div className="flex items-center justify-between text-xs">
+          <span className="text-muted">Device Hype</span>
+          <span className="font-mono font-bold text-accent-soft">{hype}%</span>
+        </div>
+        <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-surface-hover">
+          <div
+            className="h-full rounded-full bg-accent-soft transition-all"
+            style={{ width: `${hype}%` }}
+          />
+        </div>
       </div>
 
       {/* Cash Generation */}
@@ -73,9 +91,9 @@ function DeviceCard({ device }: { device: ReleasedDevice }) {
             style={{ width: `${durabilityPercent}%` }}
           />
         </div>
-        {missingDurability > 0 && (
+        {missingDurability > 0 && !device.isDiscontinued && (
           <div className="mt-2 flex items-center justify-between">
-            <span className="text-[10px] text-muted">Repair: ${repairCost}</span>
+            <span className="text-[10px] text-muted">Repair: ${repairCost.toLocaleString()}</span>
             <button
               type="button"
               onClick={() => repairDevice(device.id)}
@@ -86,6 +104,30 @@ function DeviceCard({ device }: { device: ReleasedDevice }) {
           </div>
         )}
       </div>
+
+      {/* Upkeep info & Discontinue Button */}
+      {!device.isDiscontinued ? (
+        <div className="mt-3 border-t border-border/40 pt-3 flex items-center justify-between gap-3">
+          <div className="text-[10px] text-muted">
+            <p>Upkeep: <span className="font-mono text-warning font-semibold">$150,000/mo</span></p>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              if (confirm(`Discontinue ${device.name}? This halts factory production and stops the monthly $150k upkeep fee.`)) {
+                discontinueDevice(device.id);
+              }
+            }}
+            className="rounded-lg bg-danger/15 px-2.5 py-1 text-[10px] font-semibold text-danger transition hover:bg-danger/25"
+          >
+            🛑 Discontinue
+          </button>
+        </div>
+      ) : (
+        <div className="mt-3 border-t border-border/40 pt-3 text-center text-[10px] font-medium text-muted">
+          🚫 Discontinued · Liquidating remaining stock
+        </div>
+      )}
 
       {/* Sales Trend */}
       {device.monthlySales.length > 1 && (
@@ -274,9 +316,25 @@ export function DevicesTab() {
       {/* Device List */}
       {filtered.length > 0 ? (
         <div className="space-y-3">
-          {filtered.map((device) => (
+          {filtered.filter((d) => !d.isDiscontinued).map((device) => (
             <DeviceCard key={device.id} device={device} />
           ))}
+
+          {filtered.filter((d) => d.isDiscontinued).length > 0 && (
+            <div className="mt-6 border-t border-border/20 pt-4">
+              <details className="group" open={false}>
+                <summary className="flex cursor-pointer items-center justify-between text-xs font-semibold text-muted select-none hover:text-fg">
+                  <span>📁 Legacy & Discontinued Devices ({filtered.filter((d) => d.isDiscontinued).length})</span>
+                  <span className="transition group-open:rotate-180">▼</span>
+                </summary>
+                <div className="mt-3 space-y-3">
+                  {filtered.filter((d) => d.isDiscontinued).map((device) => (
+                    <DeviceCard key={device.id} device={device} />
+                  ))}
+                </div>
+              </details>
+            </div>
+          )}
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center py-16 text-center">

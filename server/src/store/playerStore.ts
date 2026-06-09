@@ -7,7 +7,7 @@
  *  Read operations return cloned snapshots to prevent mutation bugs.
  */
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync, writeFile } from 'fs';
 import { join, dirname } from 'path';
 import type { PlayerProfile } from '../types';
 
@@ -70,8 +70,8 @@ class PlayerStore {
     }
   }
 
-  /** Flush to disk. Called periodically and on graceful shutdown. */
-  flush(): void {
+  /** Flush to disk synchronously. Called on graceful shutdown. */
+  flushSync(): void {
     if (!this.dirty) return;
     try {
       if (!existsSync(DATA_DIR)) {
@@ -80,9 +80,31 @@ class PlayerStore {
       const data = Array.from(this.players.values());
       writeFileSync(PLAYERS_FILE, JSON.stringify(data, null, 2), 'utf-8');
       this.dirty = false;
-      console.log(`[Store] Flushed ${data.length} players to disk.`);
+      console.log(`[Store] Flushed ${data.length} players to disk (sync).`);
     } catch (err) {
-      console.error('[Store] Failed to flush:', err);
+      console.error('[Store] Failed to flush synchronously:', err);
+    }
+  }
+
+  /** Flush to disk asynchronously. Called periodically to avoid blocking the event loop. */
+  async flushAsync(): Promise<void> {
+    if (!this.dirty) return;
+    try {
+      if (!existsSync(DATA_DIR)) {
+        mkdirSync(DATA_DIR, { recursive: true });
+      }
+      const data = Array.from(this.players.values());
+      const payload = JSON.stringify(data, null, 2);
+      await new Promise<void>((resolve, reject) => {
+        writeFile(PLAYERS_FILE, payload, 'utf-8', (err) => {
+          if (err) reject(err);
+          else resolve();
+        });
+      });
+      this.dirty = false;
+      console.log(`[Store] Flushed ${data.length} players to disk (async).`);
+    } catch (err) {
+      console.error('[Store] Failed to flush asynchronously:', err);
     }
   }
 
@@ -182,16 +204,16 @@ class PlayerStore {
 export const playerStore = new PlayerStore();
 
 // Auto-flush every 30 seconds
-setInterval(() => playerStore.flush(), 30_000);
+setInterval(() => playerStore.flushAsync(), 30_000);
 
 // Graceful shutdown
 process.on('SIGINT', () => {
   console.log('[Store] Flushing before shutdown...');
-  playerStore.flush();
+  playerStore.flushSync();
   process.exit(0);
 });
 
 process.on('SIGTERM', () => {
-  playerStore.flush();
+  playerStore.flushSync();
   process.exit(0);
 });
