@@ -26,6 +26,8 @@
   --animate-float: float 6s ease-in-out infinite;
   --animate-pulse-glow: pulse-glow 3s ease-in-out infinite;
   --animate-shimmer: shimmer 2.5s linear infinite;
+  --animate-device-float: device-float 8s ease-in-out infinite;
+  --animate-scan: scan 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 @keyframes float {
@@ -66,6 +68,28 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+@keyframes device-float {
+  0%, 100% {
+    transform: translateY(0) rotateX(0) rotateY(0);
+  }
+  25% {
+    transform: translateY(-8px) rotateX(1deg) rotateY(-1deg);
+  }
+  50% {
+    transform: translateY(-12px) rotateX(0deg) rotateY(2deg);
+  }
+  75% {
+    transform: translateY(-4px) rotateX(-1deg) rotateY(1deg);
+  }
+}
+
+@keyframes scan {
+  0% { top: -10%; opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { top: 110%; opacity: 0; }
 }
 
 html,
@@ -156,6 +180,26 @@ body {
   }
   .stagger-4 {
     animation-delay: 0.2s;
+  }
+
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+
+  .transform-3d {
+    transform-style: preserve-3d;
+  }
+
+  .device-shadow {
+    box-shadow: 
+      0 20px 40px -10px rgba(0,0,0,0.8),
+      0 0 80px rgba(59, 130, 246, 0.15),
+      inset 0 0 0 1px rgba(255,255,255,0.05);
+  }
+
+  .scanner-line {
+    @apply absolute left-0 right-0 h-[2px] bg-accent opacity-50 z-50 pointer-events-none;
+    box-shadow: 0 0 20px 5px var(--color-accent);
   }
 
   .custom-scrollbar::-webkit-scrollbar {

@@ -7,8 +7,14 @@ import { CATEGORY_META } from '../data/components';
 export function DeviceReviewModal() {
   const activeReview = useGameStore((s) => s.activeDeviceReview);
   const closeReview = useGameStore((s) => s.closeDeviceReview);
+  const setScreen = useGameStore((s) => s.setScreen);
 
   if (!activeReview) return null;
+
+  const handleClose = () => {
+    closeReview();
+    setScreen('devices');
+  };
 
   const score = activeReview.score;
   const categoryMeta = CATEGORY_META[activeReview.category];
@@ -38,7 +44,7 @@ export function DeviceReviewModal() {
     impactPercent > 0
       ? `+${impactPercent}% demand boost due to positive critic reviews!`
       : impactPercent < 0
-      ? `${impactPercent}% demand penalty from weak critic reviews.`
+      ? `${Math.abs(impactPercent)}% demand penalty from weak critic reviews.`
       : `No significant sales impact.`;
 
   return (
@@ -115,7 +121,7 @@ export function DeviceReviewModal() {
 
         {/* Action */}
         <div className="mt-6 flex justify-center">
-          <Button variant="glow" className="w-full py-3 text-sm" onClick={closeReview}>
+          <Button variant="glow" className="w-full py-3 text-sm" onClick={handleClose}>
             Start Product Sales
           </Button>
         </div>

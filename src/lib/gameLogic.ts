@@ -135,7 +135,7 @@ export function generateDeviceReview(
   }
 
   // Final score calculated as weighted average, bounded between 10 and 100
-  let finalScore = Math.round(avgStats * 0.5 + priceScore * 0.4 - tierPenalty + Math.random() * 8 - 4);
+  let finalScore = Math.round(avgStats * 0.6 + priceScore * 0.4 - tierPenalty + Math.random() * 8 - 4);
   finalScore = Math.min(100, Math.max(10, finalScore));
 
   // Specific feedback comments based on ratings
@@ -186,7 +186,7 @@ export function generateDeviceReview(
     shuffledFeedbacks[j] = temp;
   }
   const selectedFeedbacks = shuffledFeedbacks.slice(0, 3);
-  if (selectedFeedbacks.length < 2) {
+  while (selectedFeedbacks.length < 3) {
     selectedFeedbacks.push(`A solid attempt at a ${category} with a balance of features.`);
   }
 

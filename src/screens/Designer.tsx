@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState, useRef } from 'react';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { CATEGORY_META, SLOTS_BY_CATEGORY } from '../data/components';
@@ -593,10 +593,10 @@ const getLogoGlowStyle = (glow: string, accentColor: string) => {
   const isCircularWatch = category === 'smartwatch' && smartwatchShape === 'Round';
 
   const getCategoryLayout = (cat: string) => {
-    let width = 'w-56 sm:w-64';
-    let minHeight = 'min-h-[28rem] px-3 pb-4 pt-2';
+    let width = 'w-48 sm:w-56';
+    let minHeight = 'min-h-[24rem] px-3 pb-4 pt-2';
     let aspect = '';
-    let frameR = 'rounded-[2.8rem]';
+    let frameR = 'rounded-[2.4rem]';
     let bezelR = 'rounded-[2rem]';
 
     switch (cat) {
@@ -641,10 +641,10 @@ const getLogoGlowStyle = (glow: string, accentColor: string) => {
         break;
       case 'smartphone':
       default:
-        width = 'w-56 sm:w-64';
-        minHeight = 'min-h-[28rem] px-3 pb-4 pt-2';
-        frameR = 'rounded-[2.8rem]';
-        bezelR = 'rounded-[2rem]';
+        width = 'w-48 sm:w-56';
+        minHeight = 'min-h-[24rem] px-3 pb-4 pt-2';
+        frameR = 'rounded-[2.4rem]';
+        bezelR = 'rounded-[1.8rem]';
         break;
     }
     return { width, minHeight, aspect, frameR, bezelR };
@@ -696,6 +696,7 @@ const getLogoGlowStyle = (glow: string, accentColor: string) => {
   const bezelRounded = layoutStyle.bezelR;
   const frameAspectClass = layoutStyle.aspect;
   const screenMinHeightClass = layoutStyle.minHeight;
+  const layoutWidthClass = layoutStyle.width;
 
   const powerBtnColor = buttonStyle === 'Accent' ? '#f97316' : buttonColor;
 
@@ -795,9 +796,30 @@ const getLogoGlowStyle = (glow: string, accentColor: string) => {
       };
     }
   }
+  const mockupRef = useRef<HTMLDivElement>(null);
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (!mockupRef.current) return;
+    const rect = mockupRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    
+    const rotateX = ((y - centerY) / centerY) * -10;
+    const rotateY = ((x - centerX) / centerX) * 10;
+    
+    setTilt({ x: rotateX, y: rotateY });
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    setTilt({ x: 0, y: 0 });
+  }, []);
 
   return (
-    <div className="relative mx-auto w-56 sm:w-64">
+    <div className={`relative mx-auto ${layoutWidthClass} perspective-1000`}>
       {/* View Selector Tabs */}
       <div className="flex justify-center gap-1.5 mb-4 bg-surface-raised/60 p-1 rounded-xl w-full border border-border/30">
         {[
@@ -822,6 +844,16 @@ const getLogoGlowStyle = (glow: string, accentColor: string) => {
       </div>
 
       {/* Side Buttons */}
+      <div 
+        className="w-full h-full animate-device-float transform-3d"
+        ref={mockupRef}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        style={{ 
+          transform: `rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
+          transition: tilt.x === 0 && tilt.y === 0 ? 'transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1)' : 'transform 0.1s linear',
+        }}
+      >
       {viewMode !== 'box' && shouldRenderButtons && (
         <>
           <div
@@ -856,6 +888,11 @@ const getLogoGlowStyle = (glow: string, accentColor: string) => {
       <div className={`relative ${frameRounded} ${frameAspectClass} border-[3px] border-border-bright/40 bg-gradient-to-b from-[#1a1f2e] via-[#0f1219] to-[#0a0d12] p-[10px] shadow-[0_20px_60px_rgba(0,0,0,0.6),0_0_0_1px_rgba(255,255,255,0.03)_inset] transition-all duration-300`}>
         {/* Screen Bezel / Device Back / Retail Box */}
         <div className={`relative overflow-hidden bg-gradient-to-b from-surface to-[#06080c] transition-all duration-300 ${bezelRounded}`}>
+          {viewMode === 'front' && (
+            <div className="absolute inset-0 pointer-events-none z-[100]">
+              <div className="scanner-line animate-scan" />
+            </div>
+          )}
           {viewMode === 'front' && (
             <div className={`transition-all duration-300 ${bezelPaddingClass}`}>
               {/* Earbuds Inside layout */}
@@ -1020,6 +1057,8 @@ const getLogoGlowStyle = (glow: string, accentColor: string) => {
             </div>
           )}
         </div>
+      </div>
+      
       </div>
 
       {/* Glow Effect */}
@@ -1909,8 +1948,8 @@ export function Designer() {
             + New Device
           </Button>
         </div>
-        <Card className="flex flex-1 flex-col overflow-hidden">
-          <div className="flex flex-1 flex-col items-center justify-center gap-6 py-4">
+        <Card className="flex flex-1 flex-col overflow-y-auto custom-scrollbar">
+          <div className="flex flex-col items-center justify-center gap-6 py-4 min-h-full">
             {/* Editable Name */}
             <div className="text-center">
               <input
